@@ -35,10 +35,10 @@ contract OrbitHookTest is Test {
     }
 
     function test_OraclePricing() public {
-        stork.set(100e18, block.timestamp);
-        (uint256 val, uint256 ts) = hook.getPrice(hook.TARGET_ASSET_ID());
+        stork.set(100e18, uint64(block.timestamp));
+        (int192 val, uint64 ts) = hook.getPrice(hook.TARGET_ASSET_ID());
         assertEq(val, 100e18);
-        assertEq(ts, block.timestamp);
+        assertEq(ts, uint64(block.timestamp));
     }
 
 

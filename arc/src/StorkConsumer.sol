@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IStork} from "./interfaces/IStork.sol";
+import {IStork} from "@storknetwork/stork-evm-sdk/IStork.sol";
+import {StorkStructs} from "@storknetwork/stork-evm-sdk/StorkStructs.sol";
 
 /// @title StorkConsumer
 /// @notice Abstract contract for consuming Stork Oracle data
@@ -17,7 +18,8 @@ contract StorkConsumer {
 
     /// @notice Helper to get the latest price for an asset
     /// @param assetId The Stork Asset ID
-    function getPrice(bytes32 assetId) public view returns (uint256 value, uint256 timestamp) {
-        return stork.getTemporalNumericValueV1(assetId);
+    function getPrice(bytes32 assetId) public view returns (int192 value, uint64 timestamp) {
+        StorkStructs.TemporalNumericValue memory data = stork.getTemporalNumericValueV1(assetId);
+        return (data.quantizedValue, data.timestampNs);
     }
 }
