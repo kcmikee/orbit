@@ -7,6 +7,8 @@ This document tracks the deployment steps and command history for the Orbit proj
 | Date | Component | Action | Command |
 |------|-----------|--------|---------|
 | 2026-02-01 | Documentation | Created deploy.md | - |
+| 2026-02-01 | Infrastructure | Monorepo Setup | `rm -rf arc/.git` `git add arc` `git commit` |
+| 2026-02-01 | Documentation | Committed Docs | `git add .` `git commit` |
 
 ## Deployment Instructions
 
