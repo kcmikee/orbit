@@ -7,7 +7,7 @@ Orbit is an autonomous AI agent that manages a treasury of Real-World Assets (RW
 ## Repository Structure
 
 - **`/agent`**: (Planned) Python-based AI Agent (LangGraph + FastAPI). The "Brain".
-- **`/contracts`**: (Planned) Solidity Smart Contracts (Foundry). The "Vault" & "Hooks".
+- **`/arc`**: Solidity Smart Contracts (Foundry). The "Vault" & "Hooks".
 - **`/web`**: (Planned) Next.js Dashboard. The "View".
 
 ## Project Documentation

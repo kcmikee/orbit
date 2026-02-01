@@ -21,8 +21,8 @@
 *   **Tech**: Solidity, Foundry/Hardhat.
 *   **Role**: Uniswap v4 Hooks, any custom treasury logic on Arc.
 *   **Files**:
-    *   `contracts/src/OrbitHook.sol`: Uniswap v4 Hook for yield injection.
-    *   `contracts/script/Deploy.s.sol`: Deployment scripts for Arc.
+    *   `arc/src/OrbitHook.sol`: Uniswap v4 Hook for yield injection.
+    *   `arc/script/Deploy.s.sol`: Deployment scripts for Arc.
 
 ### 3. The Dashboard (Frontend)
 *   **Tech**: Next.js, Tailwind CSS.
@@ -40,7 +40,7 @@ orbit/
 │   ├── main.py
 │   ├── requirements.txt
 │   └── ...
-├── contracts/             # Solidity Contracts (Foundry)
+├── arc/               # Solidity Contracts (Foundry)
 │   ├── lib/
 │   ├── src/
 │   └── foundry.toml
