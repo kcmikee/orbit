@@ -17,6 +17,8 @@ import {
   logger,
 } from '@elizaos/core';
 import { z } from 'zod';
+import { pythPriceProvider } from './providers/pyth';
+import { executeSwapAction } from './actions/swap';
 
 /**
  * Define the configuration schema for the plugin with the following properties:
@@ -278,8 +280,8 @@ const plugin: Plugin = {
     ],
   },
   services: [StarterService],
-  actions: [helloWorldAction],
-  providers: [helloWorldProvider],
+  actions: [helloWorldAction, executeSwapAction],
+  providers: [helloWorldProvider, pythPriceProvider],
 };
 
 export default plugin;

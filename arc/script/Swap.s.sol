@@ -15,11 +15,11 @@ import {TickMath} from "v4-core/src/libraries/TickMath.sol";
 contract SwapScript is Script {
     using CurrencyLibrary for Currency;
 
-    // Addresses from previous deployment
-    address constant MANAGER_ADDR = 0xE5BF8439496D8D416d51822636726be37A77060B;
-    address constant HOOK_ADDR = 0x17248E22814D108D349CC4a94CbE3d9a168240C0;
-    address constant TOKEN0_ADDR = 0x130e89002e2DcE004D7b5b1f41D242B06b3C7D31;
-    address constant TOKEN1_ADDR = 0x8a5c07D09f3619bE408c83de9a45a4de7AA61564;
+    // Addresses from latest deployment (Staleness Fixed)
+    address constant MANAGER_ADDR = 0xeba92E2a73238BC2fA209eC09A05f75828e4507D;
+    address constant HOOK_ADDR = 0x61646A74c7eEEFCf870eBd0a9c239249FF4cC080;
+    address constant TOKEN0_ADDR = 0x8Ad8467aDb93F705ADB008f2719c16a2733Df758;
+    address constant TOKEN1_ADDR = 0xb16cadd174034aBAB6af36DC8320714e35a15f25;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

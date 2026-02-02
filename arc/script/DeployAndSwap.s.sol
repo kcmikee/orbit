@@ -10,7 +10,6 @@ import {OrbitHook} from "../src/OrbitHook.sol";
 import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {MockERC20} from "../test/mocks/MockERC20.sol";
-
 import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 
 contract DeployAndSwap is Script {
@@ -20,7 +19,11 @@ contract DeployAndSwap is Script {
     OrbitHook hook;
     MockERC20 token0;
     MockERC20 token1;
-    MockERC20 token2;
+
+    // Pyth Constants for Arc Testnet
+    address constant PYTH_ADDR = 0x2880aB155794e7179c9eE2e38200202908C17B43;
+    // Standard ETH/USD Price Feed ID
+    bytes32 constant ETH_USD_PRICE_ID = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -28,7 +31,7 @@ contract DeployAndSwap is Script {
         
         vm.startBroadcast(deployerPrivateKey);
 
-        // 1. Deploy PoolManager with deployer as owner
+        // 1. Deploy PoolManager
         manager = new PoolManager(deployer); 
         console.log("PoolManager deployed at:", address(manager));
 
@@ -45,22 +48,20 @@ contract DeployAndSwap is Script {
         console.log("Token0:", address(token0));
         console.log("Token1:", address(token1));
 
-        // 3. Deploy OrbitHook using HookMiner to find salt
-        // Stork address mock (random address since we aren't enforcing logic yet)
-        address stork = address(0x1234567890123456789012345678901234567890); 
-        
-        // Forge uses a deterministic Create2Deployer for salt-based deployments in scripts
+        // 3. Deploy OrbitHook using HookMiner
         address create2Deployer = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
         
-        uint160 flags = uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG);
+        // Only BEFORE_SWAP verification now
+        uint160 flags = uint160(Hooks.BEFORE_SWAP_FLAG);
+        
         (address hookAddress, bytes32 salt) = HookMiner.find(
             create2Deployer, 
             flags, 
             type(OrbitHook).creationCode, 
-            abi.encode(address(manager), stork)
+            abi.encode(address(manager), PYTH_ADDR, ETH_USD_PRICE_ID)
         );
 
-        hook = new OrbitHook{salt: salt}(manager, stork);
+        hook = new OrbitHook{salt: salt}(manager, PYTH_ADDR, ETH_USD_PRICE_ID);
         require(address(hook) == hookAddress, "Hook address mismatch");
         console.log("OrbitHook deployed at:", address(hook));
 
@@ -75,12 +76,6 @@ contract DeployAndSwap is Script {
 
         manager.initialize(key, uint160(79228162514264337593543950336)); // SQRT_RATIO_1_1
         console.log("Pool initialized");
-
-        // 5. Add Liquidity (Simplification: Just mint/approve manager? V4 is harder for AddLiq in script without ModifyLiquidityRouter)
-        // For verify connectivity, initialization is enough to prove Hook attachment.
-        // But let's try a swap if we can easily.
-        // V4 requires a Router to add liquidity easily. 
-        // For now, we stop at Initialization as proof of Hook connection.
         
         vm.stopBroadcast();
     }
