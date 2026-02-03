@@ -25,7 +25,8 @@
     "@elizaos/plugin-openai",
     "@elizaos/plugin-bootstrap",
     "@elizaos/plugin-elevenlabs",
-    "@elizaos/plugin-evm"
+    "@elizaos/plugin-discord",
+    "@elizaos/plugin-telegram"
   ],
   "settings": {
     "voice": {
