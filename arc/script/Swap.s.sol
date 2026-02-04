@@ -10,16 +10,18 @@ import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
 import {PoolModifyLiquidityTest} from "v4-core/src/test/PoolModifyLiquidityTest.sol";
 import {MockERC20} from "../test/mocks/MockERC20.sol";
+import {MockStork} from "../test/mocks/MockStork.sol";
 import {TickMath} from "v4-core/src/libraries/TickMath.sol";
 
 contract SwapScript is Script {
     using CurrencyLibrary for Currency;
 
-    // Addresses from latest deployment (Staleness Fixed)
-    address constant MANAGER_ADDR = 0xeba92E2a73238BC2fA209eC09A05f75828e4507D;
-    address constant HOOK_ADDR = 0x61646A74c7eEEFCf870eBd0a9c239249FF4cC080;
-    address constant TOKEN0_ADDR = 0x8Ad8467aDb93F705ADB008f2719c16a2733Df758;
-    address constant TOKEN1_ADDR = 0xb16cadd174034aBAB6af36DC8320714e35a15f25;
+    // Addresses from latest deployment
+    address constant MANAGER_ADDR = 0xE95946D2BE744fCA83f421DF10615A4fCabD77Ff;
+    address constant HOOK_ADDR = 0x93031545015f847FC85CD9f8232B742e5188c080;
+    address constant MOCK_STORK_ADDR = 0xff39f62117656Ba09318E2F86467e4aF98526238;
+    address constant TOKEN0_ADDR = 0x01BB3A79deFc363d2316c8c395F2FAF20B3697D5;
+    address constant TOKEN1_ADDR = 0xFC92d1864F6Fa41059c793935A295d29b63d9E46;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -30,6 +32,11 @@ contract SwapScript is Script {
         IPoolManager manager = IPoolManager(MANAGER_ADDR);
         MockERC20 token0 = MockERC20(TOKEN0_ADDR);
         MockERC20 token1 = MockERC20(TOKEN1_ADDR);
+        MockStork mockStork = MockStork(MOCK_STORK_ADDR);
+
+        // Ensure MockStork has a price set (in case it was reset)
+        mockStork.set(3000e18, uint64(block.timestamp * 1e9));
+        console.log("MockStork price updated to: 3000 USD");
 
         // 1. Deploy Test Routers
         PoolModifyLiquidityTest lpRouter = new PoolModifyLiquidityTest(manager);

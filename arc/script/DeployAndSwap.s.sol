@@ -10,6 +10,7 @@ import {OrbitHook} from "../src/OrbitHook.sol";
 import {HookMiner} from "v4-periphery/src/utils/HookMiner.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {MockERC20} from "../test/mocks/MockERC20.sol";
+import {MockStork} from "../test/mocks/MockStork.sol";
 import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 
 contract DeployAndSwap is Script {
@@ -17,13 +18,12 @@ contract DeployAndSwap is Script {
 
     PoolManager manager;
     OrbitHook hook;
+    MockStork mockStork;
     MockERC20 token0;
     MockERC20 token1;
 
-    // Pyth Constants for Arc Testnet
-    address constant PYTH_ADDR = 0x2880aB155794e7179c9eE2e38200202908C17B43;
-    // Standard ETH/USD Price Feed ID
-    bytes32 constant ETH_USD_PRICE_ID = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
+    // Feed ID for ETH/USD (ASCII encoded)
+    bytes32 constant ETH_USD_FEED_ID = bytes32("ETHUSD");
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -35,11 +35,19 @@ contract DeployAndSwap is Script {
         manager = new PoolManager(deployer); 
         console.log("PoolManager deployed at:", address(manager));
 
-        // 2. Deploy Tokens
+        // 2. Deploy MockStork Oracle
+        mockStork = new MockStork();
+        console.log("MockStork deployed at:", address(mockStork));
+        
+        // Set initial price: $3000 per ETH (with 18 decimals)
+        mockStork.set(3000e18, uint64(block.timestamp * 1e9));
+        console.log("MockStork price set to: 3000 USD");
+
+        // 3. Deploy Tokens
         token0 = new MockERC20();
         token0.initialize("USDC", "USDC", 18);
         token1 = new MockERC20();
-        token1.initialize("Wrapped Stork", "WSTK", 18);
+        token1.initialize("Wrapped ETH", "WETH", 18);
 
         // Ensure token0 < token1 for sorting
         if (address(token0) > address(token1)) {
@@ -48,24 +56,24 @@ contract DeployAndSwap is Script {
         console.log("Token0:", address(token0));
         console.log("Token1:", address(token1));
 
-        // 3. Deploy OrbitHook using HookMiner
+        // 4. Deploy OrbitHook using HookMiner
         address create2Deployer = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
         
-        // Only BEFORE_SWAP verification now
+        // Only BEFORE_SWAP flag
         uint160 flags = uint160(Hooks.BEFORE_SWAP_FLAG);
         
         (address hookAddress, bytes32 salt) = HookMiner.find(
             create2Deployer, 
             flags, 
             type(OrbitHook).creationCode, 
-            abi.encode(address(manager), PYTH_ADDR, ETH_USD_PRICE_ID)
+            abi.encode(address(manager), address(mockStork), ETH_USD_FEED_ID)
         );
 
-        hook = new OrbitHook{salt: salt}(manager, PYTH_ADDR, ETH_USD_PRICE_ID);
+        hook = new OrbitHook{salt: salt}(manager, address(mockStork), ETH_USD_FEED_ID);
         require(address(hook) == hookAddress, "Hook address mismatch");
         console.log("OrbitHook deployed at:", address(hook));
 
-        // 4. Initialize Pool
+        // 5. Initialize Pool
         PoolKey memory key = PoolKey({
             currency0: Currency.wrap(address(token0)),
             currency1: Currency.wrap(address(token1)),
