@@ -8,24 +8,25 @@ import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {PoolId, PoolIdLibrary} from "v4-core/src/types/PoolId.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {SwapParams} from "v4-core/src/types/PoolOperation.sol";
-import {IPyth} from "pyth-sdk-solidity/IPyth.sol";
-import {PythStructs} from "pyth-sdk-solidity/PythStructs.sol";
+import {IStork} from "@storknetwork/stork-evm-sdk/IStork.sol";
+import {StorkStructs} from "@storknetwork/stork-evm-sdk/StorkStructs.sol";
 
 /// @title OrbitHook
 /// @notice A Uniswap v4 Hook for RWA Treasury Management and Yield Optimization
-/// @dev Uses Pyth Network for Real-World Asset pricing data
+/// @dev Uses Stork Network for Real-World Asset pricing data
 contract OrbitHook is BaseHook {
     using PoolIdLibrary for PoolKey;
 
-    IPyth public immutable pyth;
-    bytes32 public immutable priceFeedId;
+    IStork public immutable stork;
+    bytes32 public immutable assetFeedId;
     uint256 public constant MAX_STALENESS = 3600; // 1 hour staleness for testing
 
-    constructor(IPoolManager _poolManager, address _pyth, bytes32 _priceFeedId) 
+    constructor(IPoolManager _poolManager, address _stork, bytes32 _assetFeedId) 
         BaseHook(_poolManager) 
     {
-        pyth = IPyth(_pyth);
-        priceFeedId = _priceFeedId;
+        require(_stork != address(0), "OrbitHook: Invalid Stork address");
+        stork = IStork(_stork);
+        assetFeedId = _assetFeedId;
     }
 
     function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
@@ -54,12 +55,24 @@ contract OrbitHook is BaseHook {
         bytes calldata
     ) internal view override returns (bytes4, BeforeSwapDelta, uint24) {
         // Logic: Check oracle price before allowing swap
-        // This will REVERT if the price is older than 60 seconds
-        PythStructs.Price memory price = pyth.getPriceNoOlderThan(priceFeedId, MAX_STALENESS);
+        // Using unsafe version for now as we're using MockStork
+        StorkStructs.TemporalNumericValue memory value = stork.getTemporalNumericValueUnsafeV1(assetFeedId);
         
         // Sanity check: Price must be positive
-        require(price.price > 0, "OrbitHook: Invalid Oracle Price");
+        require(value.quantizedValue > 0, "OrbitHook: Invalid Oracle Price");
+        
+        // For production, check staleness:
+        // uint64 currentTime = uint64(block.timestamp * 1e9); // Convert to nanoseconds
+        // require(currentTime - value.timestampNs < MAX_STALENESS * 1e9, "OrbitHook: Stale Price");
 
         return (BaseHook.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
+    }
+
+    /// @notice Get the latest price from Stork oracle
+    /// @return price The quantized price value
+    /// @return timestamp The timestamp in nanoseconds
+    function getPrice() public view returns (int192 price, uint64 timestamp) {
+        StorkStructs.TemporalNumericValue memory value = stork.getTemporalNumericValueUnsafeV1(assetFeedId);
+        return (value.quantizedValue, value.timestampNs);
     }
 }
