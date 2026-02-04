@@ -17,8 +17,12 @@ Build autonomous treasury management agent using ElizaOS that interacts with Orb
 - [x] Verify autonomous operation
 
 ## Demo Requirements
-- [ ] Record agent making autonomous decisions
-- [ ] Show clear reasoning logs
+- [x] Integrate CoinGecko real-time prices
+- [/] Create autonomous decision engine
+- [/] Implement price threshold logic (buy low/sell high)
+- [ ] Add MockStork auto-update before swaps
+- [ ] Test autonomous rebalancing
+- [ ] Record demo showing intelligent decisions
 - [ ] Prepare 3min demo video
 - [ ] Write README documentation
 - [ ] Submit for both bounties (Uniswap + Arc)

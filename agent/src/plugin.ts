@@ -21,6 +21,7 @@ import { storkPriceProvider } from './providers/stork';
 import { treasuryMonitorProvider } from './providers/treasury';
 import { coinGeckoPriceProvider } from './providers/coingecko';
 import { executeSwapAction } from './actions/swap';
+import { autonomousRebalanceAction } from './actions/rebalance';
 
 /**
  * Define the configuration schema for the plugin with the following properties:
@@ -282,7 +283,7 @@ const plugin: Plugin = {
     ],
   },
   services: [StarterService],
-  actions: [helloWorldAction, executeSwapAction],
+  actions: [helloWorldAction, executeSwapAction, autonomousRebalanceAction],
   providers: [helloWorldProvider, coinGeckoPriceProvider, storkPriceProvider, treasuryMonitorProvider],
 };
 
