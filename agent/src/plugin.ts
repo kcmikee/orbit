@@ -17,7 +17,8 @@ import {
   logger,
 } from '@elizaos/core';
 import { z } from 'zod';
-import { pythPriceProvider } from './providers/pyth';
+import { storkPriceProvider } from './providers/stork';
+import { treasuryMonitorProvider } from './providers/treasury';
 import { executeSwapAction } from './actions/swap';
 
 /**
@@ -281,7 +282,7 @@ const plugin: Plugin = {
   },
   services: [StarterService],
   actions: [helloWorldAction, executeSwapAction],
-  providers: [helloWorldProvider, pythPriceProvider],
+  providers: [helloWorldProvider, storkPriceProvider, treasuryMonitorProvider],
 };
 
 export default plugin;
