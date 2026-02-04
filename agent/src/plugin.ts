@@ -19,6 +19,7 @@ import {
 import { z } from 'zod';
 import { storkPriceProvider } from './providers/stork';
 import { treasuryMonitorProvider } from './providers/treasury';
+import { coinGeckoPriceProvider } from './providers/coingecko';
 import { executeSwapAction } from './actions/swap';
 
 /**
@@ -282,7 +283,7 @@ const plugin: Plugin = {
   },
   services: [StarterService],
   actions: [helloWorldAction, executeSwapAction],
-  providers: [helloWorldProvider, storkPriceProvider, treasuryMonitorProvider],
+  providers: [helloWorldProvider, coinGeckoPriceProvider, storkPriceProvider, treasuryMonitorProvider],
 };
 
 export default plugin;
