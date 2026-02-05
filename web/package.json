@@ -1,5 +1,5 @@
 {
-  "name": "eliza.how",
+  "name": "Orbit",
   "description": "Project demonstrating how to make a documentation website with elizaOS",
   "version": "1.0.9",
   "type": "module",
@@ -21,6 +21,8 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.26.0",
+    "@circle-fin/developer-controlled-wallets": "^10.1.0",
+    "@circle-fin/w3s-pw-web-sdk": "^1.1.11",
     "@codemirror/autocomplete": "^6.18.3",
     "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-html": "^6.4.9",
@@ -48,6 +50,7 @@
     "clsx": "^2.1.1",
     "codemirror": "^6.0.1",
     "concurrently": "^9.1.2",
+    "cookies-next": "^6.1.1",
     "date-fns": "^4.1.0",
     "eslint-plugin-path-alias": "^2.1.0",
     "evt": "^2.5.9",

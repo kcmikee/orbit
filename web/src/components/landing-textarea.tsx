@@ -20,12 +20,12 @@ export const LandingTextarea = () => {
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedEntity = localStorage.getItem("elizaHowUserEntity");
+      const storedEntity = localStorage.getItem("norbitEntity");
       if (storedEntity) {
         setUserEntity(storedEntity);
       } else {
         const newEntity = uuidv4();
-        localStorage.setItem("elizaHowUserEntity", newEntity);
+        localStorage.setItem("norbitEntity", newEntity);
         setUserEntity(newEntity);
       }
     }
@@ -110,13 +110,13 @@ export const LandingTextarea = () => {
   );
 
   return (
-    <div className="flex flex-col w-full gap-4">
+    <div className="flex flex-col gap-4 w-full">
       <span
         data-slot="control"
         className={clsx([
-          "relative block w-full",
+          "block relative w-full",
           "dark:before:hidden",
-          "before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none",
+          "before:has-data-disabled:bg-zinc-950/5 before:has-data-disabled:shadow-none",
         ])}
       >
         <div
@@ -125,8 +125,8 @@ export const LandingTextarea = () => {
             "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white dark:placeholder:text-zinc-400",
             "bg-white dark:bg-zinc-950",
             "focus:outline-none",
-            "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500 data-[invalid]:dark:border-red-600 data-[invalid]:data-[hover]:dark:border-red-600",
-            "disabled:border-zinc-950/20 disabled:dark:border-white/15 disabled:dark:bg-white/[2.5%] dark:data-[hover]:disabled:border-white/15",
+            "data-invalid:border-red-500 data-invalid:data-hover:border-red-500 data-invalid:dark:border-red-600 data-invalid:data-hover:dark:border-red-600",
+            "disabled:border-zinc-950/20 disabled:dark:border-white/15 disabled:dark:bg-white/2.5 dark:data-hover:disabled:border-white/15",
             "ring-offset-background",
             "focus-within:ring focus-within:ring-blue-400 dark:focus-within:ring-blue-500",
             "border border-zinc-950/10 dark:border-white/10",
@@ -137,7 +137,7 @@ export const LandingTextarea = () => {
               e.preventDefault();
               handleSubmit(e);
             }}
-            className="flex flex-col items-center justify-center"
+            className="flex flex-col justify-center items-center"
           >
             <div className="relative min-h-[36px] w-full">
               <textarea
@@ -146,8 +146,8 @@ export const LandingTextarea = () => {
                 onChange={handleInputChange}
                 placeholder="Ask a question about Eliza..."
                 className={clsx([
-                  "size-full bg-transparent",
-                  "relative block size-full appearance-none",
+                  "bg-transparent size-full",
+                  "block relative appearance-none size-full",
                   "placeholder:text-zinc-500 dark:placeholder:text-zinc-400",
                   "resize-none",
                   "focus:outline-none",
@@ -155,7 +155,7 @@ export const LandingTextarea = () => {
                   "text-base/6 sm:text-sm/6",
                   "border-none outline-none focus:outline-none focus:ring-0 focus:ring-offset-0",
                   "p-0 px-4 pt-3",
-                  "field-sizing-content resize-none",
+                  "resize-none field-sizing-content",
                   "scrollbar-thin scrollbar-thumb-rounded-md",
                   "max-h-[48vh]",
                 ])}
@@ -177,9 +177,9 @@ export const LandingTextarea = () => {
                 className="size-8"
               >
                 {isLoading ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
-                  <ArrowUpIcon className="!h-3 !w-3 !shrink-0" />
+                  <ArrowUpIcon className="h-3! w-3! shrink-0!" />
                 )}
               </Button>
             </div>

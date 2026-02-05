@@ -14,12 +14,16 @@ import SocketIOManager, {
   MessageBroadcastData,
 } from "@/lib/socketio-manager";
 import type { ChatMessage } from "@/types/chat-message";
-import { getChannelMessages, getRoomMemories, pingServer } from "@/lib/api-client";
+import {
+  getChannelMessages,
+  getRoomMemories,
+  pingServer,
+} from "@/lib/api-client";
 
 // Simple spinner component
 const LoadingSpinner = () => (
   <svg
-    className="animate-spin h-4 w-4 text-zinc-600 dark:text-zinc-400"
+    className="w-4 h-4 animate-spin text-zinc-600 dark:text-zinc-400"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
@@ -100,12 +104,12 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedEntity = localStorage.getItem("elizaHowUserEntity");
+      const storedEntity = localStorage.getItem("norbitEntity");
       if (storedEntity) {
         setUserEntity(storedEntity);
       } else {
         const newEntity = uuidv4();
-        localStorage.setItem("elizaHowUserEntity", newEntity);
+        localStorage.setItem("norbitEntity", newEntity);
         setUserEntity(newEntity);
       }
     }
@@ -464,17 +468,23 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
         // First try the channel messages API (matches new message format)
         const channelMessages = await getChannelMessages(channelId, 50);
         if (channelMessages.length > 0) {
-          console.log(`[Chat] Loaded ${channelMessages.length} channel messages`);
+          console.log(
+            `[Chat] Loaded ${channelMessages.length} channel messages`,
+          );
           return channelMessages;
         }
-        
+
         // Fallback to room memories if channel messages are empty
-        console.log('[Chat] No channel messages found, trying room memories...');
+        console.log(
+          "[Chat] No channel messages found, trying room memories...",
+        );
         const roomMessages = await getRoomMemories(agentId, channelId, 50);
-        console.log(`[Chat] Loaded ${roomMessages.length} room memory messages`);
+        console.log(
+          `[Chat] Loaded ${roomMessages.length} room memory messages`,
+        );
         return roomMessages;
       } catch (error) {
-        console.error('[Chat] Error loading message history:', error);
+        console.error("[Chat] Error loading message history:", error);
         return [];
       }
     };
@@ -540,7 +550,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   const renderConnectionStatus = () => {
     if (serverStatus === "checking") {
       return (
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <div className="flex gap-2 items-center mb-4 text-sm text-gray-500">
           <LoadingSpinner />
           Checking server connection...
         </div>
@@ -549,18 +559,18 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (serverStatus === "offline") {
       return (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 shadow-sm">
+        <div className="p-6 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900/20 dark:border-red-800">
           <div>
-            <h3 className="text-red-800 dark:text-red-200 font-semibold text-sm">
+            <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">
               Connection Failed
             </h3>
-            <p className="text-red-700 dark:text-red-300 text-sm mt-1 leading-relaxed">
+            <p className="mt-1 text-sm leading-relaxed text-red-700 dark:text-red-300">
               Unable to establish connection to ElizaOS server at{" "}
               <code className="bg-red-100 dark:bg-red-800/50 px-1.5 py-0.5 rounded text-xs font-mono">
                 {process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000"}
               </code>
             </p>
-            <p className="text-red-600 dark:text-red-400 text-xs mt-2">
+            <p className="mt-2 text-xs text-red-600 dark:text-red-400">
               Please ensure the server is running and accessible.
             </p>
           </div>
@@ -577,7 +587,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
             : "Connecting (agent setup failed)...";
 
       return (
-        <div className="flex items-center gap-2 text-sm text-blue-600 mb-4">
+        <div className="flex gap-2 items-center mb-4 text-sm text-blue-600">
           <LoadingSpinner />
           {statusText}
         </div>
@@ -586,12 +596,12 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (connectionStatus === "error") {
       return (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center gap-2">
+        <div className="p-4 mb-4 bg-red-50 rounded-lg border border-red-200">
+          <div className="flex gap-2 items-center">
             <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            <span className="text-red-700 font-medium">Connection Error</span>
+            <span className="font-medium text-red-700">Connection Error</span>
           </div>
-          <p className="text-red-600 text-sm mt-1">
+          <p className="mt-1 text-sm text-red-600">
             Failed to connect to the agent. Please try refreshing the page.
           </p>
         </div>
@@ -600,7 +610,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (connectionStatus === "connected") {
       return (
-        <div className="flex items-center gap-2 text-sm text-green-600 mb-4">
+        <div className="flex gap-2 items-center mb-4 text-sm text-green-600">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           Connected to Agent
         </div>
@@ -613,10 +623,10 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   // Check if environment is properly configured
   if (!agentId) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center p-6">
-          <h2 className="text-xl font-semibold mb-2">Configuration Error</h2>
-          <p className="text-gray-600 mb-4">
+      <div className="flex justify-center items-center h-full">
+        <div className="p-6 text-center">
+          <h2 className="mb-2 text-xl font-semibold">Configuration Error</h2>
+          <p className="mb-4 text-gray-600">
             NEXT_PUBLIC_AGENT_ID is not configured in environment variables.
           </p>
           <p className="text-sm text-gray-500">
@@ -628,33 +638,30 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   }
 
   return (
-    <div className="min-h-screen w-full max-w-4xl mx-auto flex flex-col mt-20">
+    <div className="flex flex-col mx-auto mt-20 w-full max-w-4xl min-h-screen">
       {/* Header Section - Top/Middle */}
-      <div className="flex-1 flex flex-col px-4 pb-32">
+      <div className="flex flex-col flex-1 px-4 pb-32">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex justify-between items-center mb-2">
             <div className="flex-1">
               <h1 className="text-2xl font-bold">
                 {sessionData?.title || "Chat with ElizaOS Agent"}
               </h1>
               {sessionData && (
-                <div className="text-zinc-600 dark:text-zinc-400 text-sm mt-1">
+                <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                   {sessionData.messageCount} messages • Last activity{" "}
                   {formatTimeAgo(sessionData.lastActivity)}
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => createNewSession()}
-                color="blue"
-              >
+            <div className="flex gap-2 items-center">
+              <Button onClick={() => createNewSession()} color="blue">
                 New Chat
               </Button>
               {sessionData && (
                 <Button
                   onClick={() => setShowSessionSwitcher(!showSessionSwitcher)}
-                  plain        
+                  plain
                 >
                   {showSessionSwitcher ? "Hide Sessions" : "Switch Chat"}
                 </Button>
@@ -668,7 +675,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
         {/* Session Switcher */}
         {showSessionSwitcher && userEntity && (
-          <div className="mb-6 bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 border border-zinc-950/10 dark:border-white/10">
+          <div className="p-4 mb-6 rounded-lg border bg-zinc-50 dark:bg-zinc-900 border-zinc-950/10 dark:border-white/10">
             <ChatSessions
               userId={userEntity}
               currentSessionId={sessionId}
@@ -678,11 +685,11 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
         )}
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="overflow-y-auto flex-1">
           {/* Only show history loading if we're connected and actually loading history */}
           {connectionStatus === "connected" && isLoadingHistory ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="flex items-center gap-2">
+            <div className="flex justify-center items-center h-32">
+              <div className="flex gap-2 items-center">
                 <LoadingSpinner />
                 <span className="text-gray-600">
                   Loading conversation history...
@@ -701,7 +708,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
                 }}
               />
               {isAgentThinking && (
-                <div className="flex items-center gap-2 py-4 text-gray-600">
+                <div className="flex gap-2 items-center py-4 text-gray-600">
                   <LoadingSpinner />
                   <span>Agent is thinking...</span>
                 </div>
@@ -712,8 +719,8 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
       </div>
 
       {/* Input Area - Fixed at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-black z-10">
-        <div className="w-full max-w-4xl mx-auto">
+      <div className="fixed right-0 bottom-0 left-0 z-10 p-4 bg-white dark:bg-black">
+        <div className="mx-auto w-full max-w-4xl">
           <TextareaWithActions
             input={input}
             onInputChange={(e) => setInput(e.target.value)}
@@ -734,7 +741,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
       {/* Debug Info (Only when NEXT_PUBLIC_DEBUG is enabled) */}
       {process.env.NEXT_PUBLIC_DEBUG === "true" && (
-        <div className="mt-4 p-2 bg-gray-100 rounded text-xs text-gray-600">
+        <div className="p-2 mt-4 text-xs text-gray-600 bg-gray-100 rounded">
           <div>Agent ID: {agentId}</div>
           <div>Session ID: {sessionId}</div>
           <div>Channel ID: {channelId}</div>

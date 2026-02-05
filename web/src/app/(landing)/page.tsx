@@ -6,19 +6,19 @@ import { LandingChatSessions } from "@/components/landing-chat-sessions";
 
 export default function Page() {
   return (
-    <main className="flex-1 size-full overflow-hidden flex flex-col">
-      <div className="flex-1 size-full overflow-hidden flex flex-col justify-center items-center gap-8 px-4 md:px-0">
-        <h1 className="text-3xl xl:text-4xl font-semibold text-center tracking-tighter text-pretty">
-          Ask anything about Eliza
+    <main className="flex overflow-hidden flex-col flex-1 size-full">
+      <div className="flex overflow-hidden flex-col flex-1 gap-8 justify-center items-center px-4 size-full md:px-0">
+        <h1 className="text-3xl font-semibold tracking-tighter text-center xl:text-4xl text-pretty">
+          Ask anything about Norbit
         </h1>
-        <div className="max-w-xl mx-auto w-full">
+        <div className="mx-auto w-full max-w-xl">
           <Suspense fallback={null}>
             <LandingTextarea />
           </Suspense>
         </div>
 
         {/* Previous Chat Sessions */}
-        <div className="max-w-2xl mx-auto w-full">
+        <div className="mx-auto w-full max-w-2xl">
           <Suspense fallback={null}>
             <LandingChatSessions />
           </Suspense>
