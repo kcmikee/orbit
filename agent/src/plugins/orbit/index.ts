@@ -3,6 +3,9 @@ import { OrbitService } from "./services/orbitService.ts";
 import { getTreasuryStatsAction } from "./actions/getTreasuryStats.ts";
 import { OrbitPriceCronService } from "./actions/orbit.cron.ts";
 import { coinGeckoPriceProvider } from "src/providers/coingecko.ts";
+import { pythPriceProvider } from "src/providers/pyth.ts";
+import { storkPriceProvider } from "src/providers/stork.ts";
+import { treasuryMonitorProvider } from "src/providers/treasury.ts";
 
 export const orbitPlugin: Plugin = {
   name: "orbit",
@@ -10,7 +13,12 @@ export const orbitPlugin: Plugin = {
   // services: [OrbitService, OrbitPriceCronService],
   services: [OrbitService],
   actions: [getTreasuryStatsAction],
-  providers: [coinGeckoPriceProvider],
+  providers: [
+    coinGeckoPriceProvider,
+    pythPriceProvider,
+    storkPriceProvider,
+    treasuryMonitorProvider,
+  ],
 };
 
 export default orbitPlugin;
