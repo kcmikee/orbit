@@ -1,16 +1,29 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import type { Character } from "@elizaos/core";
-import { ragPlugin } from "@/plugin-rag";
+// import { ragPlugin } from "@/plugin-rag";
 // import { groqPlugin } from "@/plugin-groq";
 import { openaiPlugin } from "@elizaos/plugin-openai";
 import { knowledgePlugin } from "@elizaos/plugin-knowledge";
 
 /**
+ * Character config for the agent (matches @elizaos/core Character; type not imported due to package .d.ts resolution).
+ */
+interface CharacterConfig {
+  name?: string;
+  plugins?: string[];
+  settings?: Record<string, string | number | boolean>;
+  system?: string;
+  bio?: string | string[];
+  messageExamples?: Array<Array<{ name: string; content: { text?: string } }>>;
+  style?: { all?: string[]; chat?: string[]; post?: string[] };
+  knowledge?: string[];
+}
+
+/**
  * A character object representing Eddy, a developer support agent for ElizaOS.
  */
-const character: Partial<Character> = {
+const character: CharacterConfig = {
   name: "Eliza.how",
   plugins: ["@elizaos/plugin-sql"],
   settings: {
@@ -107,7 +120,7 @@ const devRel = {
   plugins: [
     // groqPlugin,
     openaiPlugin,
-    ragPlugin,
+    // ragPlugin,
     knowledgePlugin,
   ],
 };

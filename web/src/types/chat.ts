@@ -1,4 +1,4 @@
-import { Message } from "ai";
+import { UIMessage } from "ai";
 
 export interface Citation {
   url: string;
@@ -11,11 +11,11 @@ export interface ChatStreamData {
 }
 
 export interface ChatRequest {
-  messages: Message[];
+  messages: UIMessage[];
 }
 
 export interface ChatResponse extends ChatStreamData {
   id: string;
-  messages: Message[];
+  messages: UIMessage[];
   followUpPrompts?: string[];
 }
