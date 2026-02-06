@@ -192,6 +192,34 @@ export async function POST(request: Request) {
         return NextResponse.json(data.data, { status: 200 });
       }
 
+      case "createWallet": {
+        const { userToken, blockchain } = params;
+        if (!userToken || !blockchain) {
+          return NextResponse.json(
+            { error: "Missing userToken or blockchain" },
+            { status: 400 },
+          );
+        }
+        const response = await fetch(`${CIRCLE_BASE_URL}/v1/w3s/user/wallets`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${CIRCLE_API_KEY}`,
+            "X-User-Token": userToken,
+          },
+          body: JSON.stringify({
+            idempotencyKey: crypto.randomUUID(),
+            blockchains: [blockchain],
+            accountType: "SCA",
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          return NextResponse.json(data, { status: response.status });
+        }
+        return NextResponse.json(data.data ?? data, { status: 200 });
+      }
+
       case "getTokenBalance": {
         const { userToken, walletId } = params;
         if (!userToken || !walletId) {
