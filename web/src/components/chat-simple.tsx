@@ -248,7 +248,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
         try {
           const addAgentResponse = await fetch(
-            `/api/eliza/messaging/central-channels/${centralChannelId}/agents`,
+            `/api/eliza/messaging/channels/${centralChannelId}/agents`,
             {
               method: "POST",
               headers: {

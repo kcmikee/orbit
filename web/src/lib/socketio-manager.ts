@@ -14,9 +14,11 @@ enum SOCKET_MESSAGE_TYPE {
 }
 
 // Direct connection to ElizaOS server for Socket.IO (proxying doesn't work for WebSocket)
+// Must match ElizaOS server port (e.g. 4000 when Next.js app runs on 3000)
 const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
-console.log("[SocketIO] Using server URL:", SOCKET_URL);
+  typeof process !== "undefined" && process.env?.NEXT_PUBLIC_SERVER_URL
+    ? process.env.NEXT_PUBLIC_SERVER_URL
+    : "http://localhost:4000";
 
 // Enhanced types for ElizaOS Socket.IO events (matching official client)
 export type MessageBroadcastData = {
@@ -213,8 +215,12 @@ class SocketIOManager extends EventAdapter {
       return;
     }
 
-    // Create a single socket connection
-    console.info("connecting to", SOCKET_URL);
+    // Create a single socket connection with entityId in auth (required by ElizaOS server)
+    if (!entityId || typeof entityId !== "string" || entityId.trim() === "") {
+      console.error("[SocketIO] Valid entityId required for connection");
+      return;
+    }
+    console.info("[SocketIO] Connecting to", SOCKET_URL, "as entity", entityId);
     this.socket = io(SOCKET_URL, {
       autoConnect: true,
       reconnection: true,
@@ -224,6 +230,10 @@ class SocketIOManager extends EventAdapter {
       transports: ["polling", "websocket"], // Try polling first
       forceNew: false,
       upgrade: true,
+      auth: {
+        entityId: entityId.trim(),
+        ...(serverId ? { serverId } : {}),
+      },
     });
 
     // Set up connection promise for async operations that depend on connection
@@ -387,11 +397,16 @@ class SocketIOManager extends EventAdapter {
     }
 
     this.activeChannels.add(channelId);
+    const messageServerId = serverId || this.serverId;
     this.socket.emit("message", {
       type: SOCKET_MESSAGE_TYPE.ROOM_JOINING,
       payload: {
         channelId,
-        serverId: serverId || this.serverId,
+        // New ElizaOS API: messageServerId (message_server_id) replaces serverId
+        messageServerId,
+        message_server_id: messageServerId,
+        // Keep serverId for backward compatibility
+        serverId: messageServerId,
         entityId: this.entityId,
         metadata: { isDm: false },
       },
@@ -486,6 +501,7 @@ class SocketIOManager extends EventAdapter {
 
     const messageId = v4();
     const finalChannelId = sessionChannelId || channelId; // Use session channel ID if provided
+    const messageServerId = serverId || this.serverId;
 
     console.info(
       `[SocketIO] Sending message to channel ${channelId} with session ID ${finalChannelId}`,
@@ -495,12 +511,18 @@ class SocketIOManager extends EventAdapter {
     this.socket.emit("message", {
       type: SOCKET_MESSAGE_TYPE.SEND_MESSAGE,
       payload: {
+        // Required identifiers (new server validation)
         senderId: this.entityId,
+        author_id: this.entityId,
         senderName: USER_NAME,
         message,
         channelId: finalChannelId, // Use session channel ID for proper routing
         roomId: finalChannelId, // Keep for backward compatibility
-        serverId: serverId || this.serverId,
+        // New ElizaOS API: messageServerId (message_server_id) replaces serverId
+        messageServerId,
+        message_server_id: messageServerId,
+        // Keep serverId for backward compatibility
+        serverId: messageServerId,
         messageId,
         source,
         attachments: [],

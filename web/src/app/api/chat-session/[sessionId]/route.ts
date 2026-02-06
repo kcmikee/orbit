@@ -34,7 +34,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Get all channels from the correct ElizaOS API endpoint
     const channelsResponse = await fetch(
-      `${API_BASE_URL}/api/messaging/central-servers/00000000-0000-0000-0000-000000000000/channels`,
+      `${API_BASE_URL}/api/messaging/message-servers/00000000-0000-0000-0000-000000000000/channels`,
       {
         method: "GET",
         headers: {
@@ -55,10 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Find the channel with matching sessionId ONLY
     const sessionChannel = channels.find((channel: any) => {
       const metadata = channel.metadata || {};
-      return (
-        channel.id === sessionId ||
-        metadata.sessionId === sessionId
-      );
+      return channel.id === sessionId || metadata.sessionId === sessionId;
     });
 
     if (!sessionChannel) {
@@ -71,7 +68,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     try {
       const messagesResponse = await fetch(
-        `${API_BASE_URL}/api/messaging/central-channels/${sessionChannel.id}/messages?limit=100`,
+        `${API_BASE_URL}/api/messaging/channels/${sessionChannel.id}/messages?limit=100`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },

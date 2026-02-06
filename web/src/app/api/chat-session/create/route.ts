@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
+// Use app URL for internal Next.js API calls (dm-channel is a Next.js route, not Eliza)
+const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const AGENT_ID = process.env.NEXT_PUBLIC_AGENT_ID;
 
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     try {
       // Create DM channel for this session using get-or-create with sessionId
       const dmChannelResponse = await fetch(
-        `http://localhost:4000/api/dm-channel/get-or-create`,
+        `${APP_BASE_URL}/api/dm-channel/get-or-create`,
         {
           method: "POST",
           headers: {

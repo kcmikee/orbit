@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch DM channels from ElizaOS server using the correct endpoint
-    const channelsUrl = `${API_BASE_URL}/api/messaging/central-servers/00000000-0000-0000-0000-000000000000/channels`;
+    const channelsUrl = `${API_BASE_URL}/api/messaging/message-servers/00000000-0000-0000-0000-000000000000/channels`;
     console.log(`[API] Fetching channels from: ${channelsUrl}`);
 
     const response = await fetch(channelsUrl, {
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         dmChannels.map(async (channel: any) => {
           try {
             const messagesResponse = await fetch(
-              `${API_BASE_URL}/api/messaging/central-channels/${channel.id}/messages?limit=50`,
+              `${API_BASE_URL}/api/messaging/channels/${channel.id}/messages?limit=50`,
               {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },

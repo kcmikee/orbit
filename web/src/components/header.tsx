@@ -11,6 +11,7 @@ import {
 import { Dialog } from "@/components/dialog";
 import { DiscordIcon, XIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
+import CreateWallet from "./create-wallet";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -89,6 +90,7 @@ export function Header() {
 
           <div className="flex gap-x-4 items-center ml-auto">
             {/* <NavLinks /> */}
+            <CreateWallet />
           </div>
         </div>
       </nav>

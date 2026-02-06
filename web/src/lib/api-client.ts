@@ -334,7 +334,7 @@ export const getChannelMessages = async (
 ): Promise<ChatMessage[]> => {
   try {
     const response: ElizaAPIResponse<{ messages: any[] }> = await fetcher(
-      `/messaging/central-channels/${channelId}/messages?limit=${limit}`,
+      `/messaging/channels/${channelId}/messages?limit=${limit}`,
     );
 
     if (!response.success || !Array.isArray(response.data?.messages)) {
@@ -379,7 +379,7 @@ export const sendChannelMessage = async (
 ): Promise<boolean> => {
   try {
     const response: ElizaAPIResponse = await fetcher(
-      `/messaging/central-channels/${channelId}/messages`,
+      `/messaging/channels/${channelId}/messages`,
       {
         method: "POST",
         body: JSON.stringify({

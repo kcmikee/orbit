@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const ELIZA_SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
+const MESSAGE_SERVER_ID = "00000000-0000-0000-0000-000000000000";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,9 +18,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all channels from the server
+    // Get all channels from the message server (new API; replaces central-channels)
     const channelsResponse = await fetch(
-      `${ELIZA_SERVER_URL}/api/messaging/central-channels`,
+      `${ELIZA_SERVER_URL}/api/messaging/message-servers/${MESSAGE_SERVER_ID}/channels`,
       {
         method: "GET",
         headers: {

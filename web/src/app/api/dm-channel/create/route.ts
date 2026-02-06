@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const ELIZA_SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
+const MESSAGE_SERVER_ID = "00000000-0000-0000-0000-000000000000";
+
 interface CreateDMChannelRequest {
   userId: string;
   agentId: string;
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Create the DM channel via ElizaOS API
     const createChannelResponse = await fetch(
-      `${ELIZA_SERVER_URL}/api/messaging/central-channels`,
+      `${ELIZA_SERVER_URL}/api/messaging/channels`,
       {
         method: "POST",
         headers: {
@@ -59,7 +61,10 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           id: finalChannelId,
           name: channelName,
-          server_id: "00000000-0000-0000-0000-000000000000", // Required server ID
+          // New API: message_server_id replaces server_id
+          message_server_id: MESSAGE_SERVER_ID,
+          // Keep deprecated field for older servers (safe to send)
+          server_id: MESSAGE_SERVER_ID,
           participantCentralUserIds: [userId, agentId],
           type: "DM", // Channel type
           metadata: metadata,
@@ -80,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     // Add agent to the channel as a participant
     const addAgentResponse = await fetch(
-      `${ELIZA_SERVER_URL}/api/messaging/central-channels/${finalChannelId}/agents`,
+      `${ELIZA_SERVER_URL}/api/messaging/channels/${finalChannelId}/agents`,
       {
         method: "POST",
         headers: {
