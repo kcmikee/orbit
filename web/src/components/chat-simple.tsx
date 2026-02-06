@@ -8,7 +8,12 @@ import { ChatMessages } from "@/components/chat-messages";
 import { TextareaWithActions } from "@/components/textarea-with-actions";
 import { ChatSessions } from "@/components/chat-sessions";
 import { Button } from "@/components/button";
+import { ConnectWalletModal } from "@/components/connect-wallet-modal";
 import { USER_NAME, CHAT_SOURCE } from "@/constants";
+import {
+  useWalletConnection,
+  WALLET_CONNECTED_EVENT,
+} from "@/hooks/use-wallet-connection";
 import SocketIOManager, {
   ControlMessageData,
   MessageBroadcastData,
@@ -79,6 +84,10 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   >("checking");
   const [showSessionSwitcher, setShowSessionSwitcher] =
     useState<boolean>(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+
+  const isWalletConnected = useWalletConnection();
 
   // --- Refs ---
   const initStartedRef = useRef(false);
@@ -551,13 +560,30 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (input.trim()) {
-        sendMessage(input.trim());
-        setInput("");
+      const messageText = input.trim();
+      if (!messageText) return;
+
+      if (!isWalletConnected) {
+        setPendingMessage(messageText);
+        setWalletModalOpen(true);
+        return;
       }
+
+      sendMessage(messageText);
+      setInput("");
     },
-    [input, sendMessage],
+    [input, isWalletConnected, sendMessage],
   );
+
+  const handleWalletConnect = useCallback(() => {
+    setWalletModalOpen(false);
+    window.dispatchEvent(new CustomEvent(WALLET_CONNECTED_EVENT));
+    if (pendingMessage) {
+      sendMessage(pendingMessage);
+      setPendingMessage(null);
+      setInput("");
+    }
+  }, [pendingMessage, sendMessage]);
 
   // --- Render Connection Status ---
   const renderConnectionStatus = () => {
@@ -751,6 +777,12 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
           />
         </div>
       </div>
+
+      <ConnectWalletModal
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        onConnect={handleWalletConnect}
+      />
 
       {/* Debug Info (Only when NEXT_PUBLIC_DEBUG is enabled) */}
       {process.env.NEXT_PUBLIC_DEBUG === "true" && (

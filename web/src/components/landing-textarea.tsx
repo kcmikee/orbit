@@ -7,15 +7,23 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/button";
+import { ConnectWalletModal } from "@/components/connect-wallet-modal";
 import { ExamplePrompts } from "@/components/example-prompts";
+import {
+  useWalletConnection,
+  WALLET_CONNECTED_EVENT,
+} from "@/hooks/use-wallet-connection";
 import { getOrGenerateUserEntity } from "@/lib/local-storage";
 
 export const LandingTextarea = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userEntity, setUserEntity] = useState<string | null>(null);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
   const { push } = useRouter();
+  const isWalletConnected = useWalletConnection();
 
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
@@ -78,28 +86,50 @@ export const LandingTextarea = () => {
       try {
         e?.preventDefault();
 
-        if (!input.trim() || !userEntity) {
+        const messageText = input.trim();
+        if (!messageText || !userEntity) {
           setIsLoading(false);
           return;
         }
 
-        createNewSession(input.trim());
+        if (!isWalletConnected) {
+          setPendingMessage(messageText);
+          setWalletModalOpen(true);
+          return;
+        }
+
+        createNewSession(messageText);
       } catch (error) {
         console.error(error);
         setIsLoading(false);
       }
     },
-    [input, userEntity, createNewSession],
+    [input, userEntity, isWalletConnected, createNewSession],
   );
 
   const handlePromptSelect = useCallback(
     (prompt: string) => {
-      if (userEntity) {
-        createNewSession(prompt);
+      if (!userEntity) return;
+
+      if (!isWalletConnected) {
+        setPendingMessage(prompt);
+        setWalletModalOpen(true);
+        return;
       }
+
+      createNewSession(prompt);
     },
-    [userEntity, createNewSession],
+    [userEntity, isWalletConnected, createNewSession],
   );
+
+  const handleWalletConnect = useCallback(() => {
+    setWalletModalOpen(false);
+    window.dispatchEvent(new CustomEvent(WALLET_CONNECTED_EVENT));
+    if (pendingMessage) {
+      createNewSession(pendingMessage);
+      setPendingMessage(null);
+    }
+  }, [pendingMessage, createNewSession]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -180,6 +210,12 @@ export const LandingTextarea = () => {
       </span>
 
       <ExamplePrompts onPromptSelect={handlePromptSelect} />
+
+      <ConnectWalletModal
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        onConnect={handleWalletConnect}
+      />
     </div>
   );
 };

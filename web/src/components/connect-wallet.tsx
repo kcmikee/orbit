@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
+import { WALLET_CONNECTED_EVENT } from "@/hooks/use-wallet-connection";
 import { USER_SESSION_KEY } from "./create-wallet";
 import { ConnectWalletModal } from "./connect-wallet-modal";
 
@@ -76,6 +77,7 @@ export function ConnectWallet() {
     setIsConnected(true);
     setModalOpen(false);
     fetchWalletAddress();
+    window.dispatchEvent(new CustomEvent(WALLET_CONNECTED_EVENT));
     const redirect =
       typeof window !== "undefined" &&
       window.sessionStorage.getItem("redirect-after-connect");
