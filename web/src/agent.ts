@@ -104,7 +104,12 @@ const character: Partial<Character> = {
 
 const devRel = {
   character,
-  plugins: [groqPlugin, openaiPlugin, ragPlugin, knowledgePlugin],
+  plugins: [
+    // groqPlugin,
+    openaiPlugin,
+    ragPlugin,
+    knowledgePlugin,
+  ],
 };
 
 export const project = {
