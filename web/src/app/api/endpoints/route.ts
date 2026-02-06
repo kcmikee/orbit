@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 const CIRCLE_BASE_URL =
   process.env.NEXT_PUBLIC_CIRCLE_BASE_URL ?? "https://api.circle.com";
 const CIRCLE_API_KEY = process.env.CIRCLE_API_KEY as string;
-console.log("CIRCLE_API_KEYYYY", CIRCLE_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -47,6 +46,83 @@ export async function POST(request: Request) {
         }
 
         // Returns: { deviceToken, deviceEncryptionKey }
+        return NextResponse.json(data.data, { status: 200 });
+      }
+
+      case "createDeviceTokenEmail": {
+        const { deviceId, email } = params;
+        if (!deviceId || !email) {
+          return NextResponse.json(
+            { error: "Missing deviceId or email" },
+            { status: 400 },
+          );
+        }
+
+        const response = await fetch(
+          `${CIRCLE_BASE_URL}/v1/w3s/users/email/token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${CIRCLE_API_KEY}`,
+            },
+            body: JSON.stringify({
+              idempotencyKey: crypto.randomUUID(),
+              deviceId,
+              email: String(email).trim().toLowerCase(),
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(data, { status: response.status });
+        }
+
+        // Returns: { deviceToken, deviceEncryptionKey, otpToken }
+        return NextResponse.json(data.data, { status: 200 });
+      }
+
+      case "resendOtp": {
+        const { otpToken, email, deviceId } = params;
+        if (!otpToken || !email || !deviceId) {
+          return NextResponse.json(
+            { error: "Missing otpToken, email, or deviceId" },
+            { status: 400 },
+          );
+        }
+
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${CIRCLE_API_KEY}`,
+        };
+        // X-User-Token may be required; omit for pre-login resend
+        const userToken = params.userToken;
+        if (userToken) {
+          headers["X-User-Token"] = userToken;
+        }
+
+        const response = await fetch(
+          `${CIRCLE_BASE_URL}/v1/w3s/users/email/resendOTP`,
+          {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              idempotencyKey: crypto.randomUUID(),
+              otpToken,
+              email: String(email).trim().toLowerCase(),
+              deviceId,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(data, { status: response.status });
+        }
+
         return NextResponse.json(data.data, { status: 200 });
       }
 

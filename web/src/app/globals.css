@@ -2,13 +2,47 @@
 @plugin "@tailwindcss/typography";
 
 .prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  @apply !px-0 !py-0;
+  @apply px-0! py-0!;
 }
 
 .prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  @apply !bg-transparent;
+  @apply bg-transparent!;
 }
 
 .prose :where(p:last-child) {
-  @apply !mb-0;
+  @apply mb-0!;
+}
+
+:root {
+  --obsidian: #020202;
+  --cobalt: #2e5bff;
+  --stork: #e2e8f0;
+}
+
+body {
+  background-color: var(--obsidian);
+  color: var(--stork);
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Custom Hide Scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Border Beam Keyframes */
+@keyframes border-beam {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
 }

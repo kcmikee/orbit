@@ -1,0 +1,103 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { ChevronDownIcon, WalletIcon } from "@heroicons/react/24/outline";
+import * as Headless from "@headlessui/react";
+import clsx from "clsx";
+import { USER_SESSION_KEY } from "./create-wallet";
+import { ConnectWalletModal } from "./connect-wallet-modal";
+
+export function ConnectWallet() {
+  const [isConnected, setIsConnected] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkSession = () => {
+      if (typeof window === "undefined") return;
+      const session = window.localStorage.getItem(USER_SESSION_KEY);
+      setIsConnected(!!session);
+    };
+    checkSession();
+    window.addEventListener("storage", checkSession);
+    return () => window.removeEventListener("storage", checkSession);
+  }, []);
+
+  const handleConnect = useCallback(() => {
+    setIsConnected(true);
+    setModalOpen(false);
+  }, []);
+
+  const handleDisconnect = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(USER_SESSION_KEY);
+      setIsConnected(false);
+    }
+  };
+
+  return (
+    <>
+      {isConnected ? (
+        <Headless.Menu as="div" className="relative">
+          <Headless.MenuButton
+            className={clsx(
+              "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium",
+              "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+              "hover:bg-emerald-500/20 transition-colors",
+              "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+              "dark:focus:ring-offset-zinc-900",
+            )}
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              Connected
+            </span>
+            <ChevronDownIcon className="h-4 w-4 opacity-70" />
+          </Headless.MenuButton>
+          <Headless.MenuItems
+            transition
+            className={clsx(
+              "absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-xl bg-white py-1 shadow-lg ring-1 ring-zinc-950/5 focus:outline-none",
+              "dark:bg-zinc-900 dark:ring-white/10",
+              "transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0",
+            )}
+          >
+            <Headless.MenuItem>
+              {({ focus }) => (
+                <button
+                  onClick={handleDisconnect}
+                  className={clsx(
+                    "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm",
+                    focus
+                      ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white"
+                      : "text-zinc-700 dark:text-zinc-300",
+                  )}
+                >
+                  Disconnect Wallet
+                </button>
+              )}
+            </Headless.MenuItem>
+          </Headless.MenuItems>
+        </Headless.Menu>
+      ) : (
+        <button
+          onClick={() => setModalOpen(true)}
+          className={clsx(
+            "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium",
+            "bg-blue-600 text-white hover:bg-blue-700",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            "dark:focus:ring-offset-zinc-900 transition-colors",
+          )}
+        >
+          <WalletIcon className="h-4 w-4" />
+          Connect Wallet
+        </button>
+      )}
+
+      <ConnectWalletModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConnect={handleConnect}
+      />
+    </>
+  );
+}
