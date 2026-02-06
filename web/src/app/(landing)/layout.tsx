@@ -1,3 +1,5 @@
+import { LandingEffects } from "@/components/landing-effects";
+
 export default function Layout({
   children,
 }: Readonly<{
@@ -5,6 +7,7 @@ export default function Layout({
 }>) {
   return (
     <>
+      <LandingEffects />
       <div className="flex min-h-dvh flex-col size-full shrink-0 relative overflow-hidden">
         {children}
       </div>

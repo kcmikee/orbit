@@ -6,7 +6,6 @@ import { inter } from "@/app/fonts";
 import "@/app/globals.css";
 import { ProgressBar } from "@/app/progress-bar";
 import { Toaster } from "@/app/toaster";
-import { Header } from "@/components/header";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -16,11 +15,11 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: `${siteConfig.name} - Learn about the Eliza Agent Framework`,
+  title: `${siteConfig.name} – Agentic RWA Treasury Manager`,
   description: siteConfig.description,
   openGraph: {
     siteName: siteConfig.name,
-    title: "The Documentation for Eliza",
+    title: `${siteConfig.name} – Agentic RWA Treasury Manager`,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
     type: "website",
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: siteConfig.name,
-    title: "The Documentation for Eliza",
+    title: `${siteConfig.name} – Agentic RWA Treasury Manager`,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
     creator: siteConfig.creator,
@@ -45,16 +44,16 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="en" className={inter.className}>
-      <body className="min-h-dvh antialiased bg-white text-black scheme-light dark:bg-black dark:text-white dark:scheme-dark selection:!bg-[#fff0dd] dark:selection:!bg-[#3d2b15] overscroll-none">
-        <div className="flex min-h-dvh w-full flex-col grow">
-          <div className="flex grow flex-col size-full min-h-dvh">
+      <body className="min-h-dvh antialiased bg-white text-black scheme-light dark:bg-black dark:text-white dark:scheme-dark selection:bg-[#fff0dd]! dark:selection:bg-[#3d2b15]! overscroll-none">
+        <div className="flex flex-col w-full min-h-dvh grow">
+          <div className="flex flex-col grow size-full min-h-dvh">
             <ThemeProvider
               attribute="class"
               defaultTheme="system"
               enableSystem
               disableTransitionOnChange
             >
-              <Header />
+              {/* <Header /> */}
               {children}
             </ThemeProvider>
           </div>

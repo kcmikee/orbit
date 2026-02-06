@@ -1,13 +1,13 @@
 export const siteConfig = {
-  name: "AI Eliza",
+  name: "Orbit",
   url:
     process.env.NEXT_PUBLIC_APP_URL ||
     "https://ai.eliza.how/" ||
     "http://localhost:4000",
   description:
-    "Eliza is a powerful multi-agent simulation framework designed to create, deploy, and manage autonomous AI agents.",
+    "Agentic RWA Treasury Manager. An autonomous AI agent that manages Real-World Asset treasuries on Arc L1—Circle custody, Stork oracles, Uniswap v4 yield.",
   ogImage: "/og.png",
-  creator: "Eliza Labs",
+  creator: "Orbit",
   icons: [
     {
       rel: "icon",

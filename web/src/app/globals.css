@@ -1,6 +1,236 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Futuristic landing animations */
+@keyframes gradient-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(20px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-10px, 10px) scale(0.98);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0, -15px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+    filter: blur(80px);
+  }
+  50% {
+    opacity: 0.7;
+    filter: blur(100px);
+  }
+}
+
+@keyframes grid-pulse {
+  0%,
+  100% {
+    opacity: 0.03;
+  }
+  50% {
+    opacity: 0.08;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 8s ease infinite;
+}
+
+.animate-float {
+  animation: float 12s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.animate-grid-pulse {
+  animation: grid-pulse 3s ease-in-out infinite;
+}
+
+/* Subtle grid overlay for futuristic feel */
+.landing-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.dark .landing-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* Landing: hide default cursor when custom cursor is active */
+body.landing-cursor-active,
+body.landing-cursor-active * {
+  cursor: none !important;
+}
+
+/* Border beam: 1px rotating conic gradient on hover */
+@keyframes border-beam-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.border-beam-wrapper {
+  position: relative;
+  padding: 1px;
+  border-radius: 9999px;
+  background: transparent;
+  display: inline-block;
+}
+
+.border-beam-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.6),
+    rgba(139, 92, 246, 0.8),
+    rgba(255, 255, 255, 0.6),
+    rgba(245, 158, 11, 0.5),
+    rgba(255, 255, 255, 0.6)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.border-beam-wrapper:hover::before {
+  opacity: 1;
+  animation: border-beam-spin 2s linear infinite;
+}
+
+.border-beam-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: 9999px;
+  background: rgb(67 56 202);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: background 0.2s;
+}
+
+.dark .border-beam-inner {
+  background: rgb(99 102 241);
+}
+
+/* Flashlight: radial gradient follows mouse on main and cards */
+.main-bg {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  position: relative;
+}
+
+.main-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 420px at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.05),
+    transparent 50%
+  );
+  z-index: 0;
+}
+
+.dark .main-bg::before {
+  background: radial-gradient(
+    circle 420px at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.03),
+    transparent 50%
+  );
+}
+
+.card {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 280px at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.06),
+    transparent 50%
+  );
+  z-index: 0;
+}
+
+.dark .card::before {
+  background: radial-gradient(
+    circle 280px at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.04),
+    transparent 50%
+  );
+}
+
 .prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
   @apply px-0! py-0!;
 }

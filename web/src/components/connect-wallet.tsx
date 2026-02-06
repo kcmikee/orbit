@@ -50,6 +50,12 @@ export function ConnectWallet() {
   }, []);
 
   useEffect(() => {
+    const openModal = () => setModalOpen(true);
+    window.addEventListener("open-connect-wallet", openModal);
+    return () => window.removeEventListener("open-connect-wallet", openModal);
+  }, []);
+
+  useEffect(() => {
     const checkSession = () => {
       if (typeof window === "undefined") return;
       const session = window.localStorage.getItem(USER_SESSION_KEY);
@@ -70,6 +76,13 @@ export function ConnectWallet() {
     setIsConnected(true);
     setModalOpen(false);
     fetchWalletAddress();
+    const redirect =
+      typeof window !== "undefined" &&
+      window.sessionStorage.getItem("redirect-after-connect");
+    if (redirect) {
+      window.sessionStorage.removeItem("redirect-after-connect");
+      window.location.href = redirect;
+    }
   }, [fetchWalletAddress]);
 
   const handleDisconnect = () => {
@@ -97,27 +110,25 @@ export function ConnectWallet() {
         <Headless.Menu as="div" className="relative">
           <Headless.MenuButton
             className={clsx(
-              "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium",
-              "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-              "hover:bg-emerald-500/20 transition-colors",
+              "inline-flex gap-2 items-center px-3 py-2 text-sm font-medium rounded-lg",
+              "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400",
+              "transition-colors hover:bg-emerald-500/20",
               "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
               "dark:focus:ring-offset-zinc-900",
             )}
           >
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              {walletAddress
-                ? truncateAddress(walletAddress)
-                : "Connected"}
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              {walletAddress ? truncateAddress(walletAddress) : "Connected"}
             </span>
-            <ChevronDownIcon className="h-4 w-4 opacity-70" />
+            <ChevronDownIcon className="w-4 h-4 opacity-70" />
           </Headless.MenuButton>
           <Headless.MenuItems
             transition
             className={clsx(
-              "absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-xl bg-white py-1 shadow-lg ring-1 ring-zinc-950/5 focus:outline-none",
+              "absolute right-0 z-50 py-1 mt-2 w-56 bg-white rounded-xl ring-1 shadow-lg origin-top-right ring-zinc-950/5 focus:outline-none",
               "dark:bg-zinc-900 dark:ring-white/10",
-              "transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0",
+              "transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0",
             )}
           >
             {walletAddress && (
@@ -135,8 +146,8 @@ export function ConnectWallet() {
                     <span className="font-mono text-xs truncate max-w-[180px]">
                       {truncateAddress(walletAddress)}
                     </span>
-                    <span className="flex items-center gap-1 shrink-0">
-                      <ClipboardDocumentIcon className="h-4 w-4" />
+                    <span className="flex gap-1 items-center shrink-0">
+                      <ClipboardDocumentIcon className="w-4 h-4" />
                       {copySuccess ? "Copied!" : "Copy"}
                     </span>
                   </button>
@@ -164,13 +175,13 @@ export function ConnectWallet() {
         <button
           onClick={() => setModalOpen(true)}
           className={clsx(
-            "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium",
-            "bg-blue-600 text-white hover:bg-blue-700",
+            "inline-flex gap-2 items-center px-4 py-2 text-sm font-medium rounded-lg",
+            "text-white bg-blue-600 hover:bg-blue-700",
             "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-            "dark:focus:ring-offset-zinc-900 transition-colors",
+            "transition-colors dark:focus:ring-offset-zinc-900",
           )}
         >
-          <WalletIcon className="h-4 w-4" />
+          <WalletIcon className="w-4 h-4" />
           Connect Wallet
         </button>
       )}
