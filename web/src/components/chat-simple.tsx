@@ -578,7 +578,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
               Connection Failed
             </h3>
             <p className="mt-1 text-sm leading-relaxed text-red-700 dark:text-red-300">
-              Unable to establish connection to ElizaOS server at{" "}
+              Unable to establish connection to Orbit server at{" "}
               <code className="bg-red-100 dark:bg-red-800/50 px-1.5 py-0.5 rounded text-xs font-mono">
                 {process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000"}
               </code>
@@ -658,7 +658,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
           <div className="flex justify-between items-center mb-2">
             <div className="flex-1">
               <h1 className="text-2xl font-bold">
-                {sessionData?.title || "Chat with ElizaOS Agent"}
+                {sessionData?.title || "Chat with Orbit Agent"}
               </h1>
               {sessionData && (
                 <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
