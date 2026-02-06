@@ -16,7 +16,14 @@ export function ConnectWalletModal({
   onConnect,
 }: ConnectWalletModalProps) {
   return (
-    <Dialog open={open} onClose={onClose} size="md" className="!p-10">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      size="md"
+      className="p-10!"
+      backdropClassName="z-[9999] backdrop-blur-md bg-zinc-950/60 dark:bg-zinc-950/70"
+      containerClassName="z-[9999]"
+    >
       <div className="flex justify-between items-start">
         <DialogTitle>Connect Wallet</DialogTitle>
         <button

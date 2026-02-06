@@ -57,7 +57,7 @@ export function LandingCursor() {
     <>
       {/* Trailing SVG path */}
       <svg
-        className="pointer-events-none fixed left-0 top-0 z-9998 h-full w-full"
+        className="pointer-events-none fixed left-0 top-0 z-[10000] h-full w-full"
         style={{ mixBlendMode: "difference" }}
       >
         <defs>
@@ -86,7 +86,7 @@ export function LandingCursor() {
       {/* Dot pointer */}
       <div
         ref={pointerRef}
-        className="pointer-events-none fixed z-9999 rounded-full border border-white/80 bg-violet-500/80 dark:border-violet-400/80 dark:bg-violet-500/60 transition-all duration-200 ease-out"
+        className="pointer-events-none fixed z-[10001] rounded-full border border-white/80 bg-violet-500/80 dark:border-violet-400/80 dark:bg-violet-500/60 transition-all duration-200 ease-out"
         style={{
           left: pos.x,
           top: pos.y,

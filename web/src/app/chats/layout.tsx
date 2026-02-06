@@ -1,4 +1,5 @@
 import { Header } from "@/components/header";
+import logo from "@/components/logo2(1).png";
 
 export default function Layout({
   children,
@@ -7,7 +8,7 @@ export default function Layout({
 }>) {
   return (
     <>
-      <Header />
+      <Header url={logo} />
       <div className="flex overflow-hidden relative flex-col mt-20 min-h-dvh size-full shrink-0">
         {children}
       </div>

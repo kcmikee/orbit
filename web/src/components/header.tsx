@@ -12,8 +12,9 @@ import { Dialog } from "@/components/dialog";
 import { DiscordIcon, XIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { ConnectWallet } from "./connect-wallet";
+import { StaticImageData } from "next/image";
 
-export function Header() {
+export function Header({ url }: { url: StaticImageData | null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // const [mounted, setMounted] = useState(false);
 
@@ -84,7 +85,7 @@ export function Header() {
         <div className="flex justify-between items-center py-4">
           <div className="flex">
             <Link href="/" className="-m-1.5 p-1.5">
-              <Logo />
+              <Logo url={url} />
             </Link>
           </div>
 
