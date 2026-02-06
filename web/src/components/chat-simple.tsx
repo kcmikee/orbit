@@ -14,6 +14,7 @@ import SocketIOManager, {
   MessageBroadcastData,
 } from "@/lib/socketio-manager";
 import type { ChatMessage } from "@/types/chat-message";
+import { getOrGenerateUserEntity } from "@/lib/local-storage";
 import {
   getChannelMessages,
   getRoomMemories,
@@ -62,9 +63,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [inputDisabled, setInputDisabled] = useState<boolean>(false);
-  const [sessionId, setSessionId] = useState<string | null>(
-    propSessionId || null,
-  );
+  const [sessionId] = useState<string | null>(propSessionId || null);
   const [sessionData, setSessionData] = useState<any>(null);
   const [channelId, setChannelId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(true);
@@ -103,16 +102,8 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedEntity = localStorage.getItem("norbitEntity");
-      if (storedEntity) {
-        setUserEntity(storedEntity);
-      } else {
-        const newEntity = uuidv4();
-        localStorage.setItem("norbitEntity", newEntity);
-        setUserEntity(newEntity);
-      }
-    }
+    const entity = getOrGenerateUserEntity();
+    if (entity) setUserEntity(entity);
   }, []);
 
   // --- Check Server Status ---
@@ -388,7 +379,14 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
       socketIOManager.leaveChannel(channelId);
       socketIOManager.clearActiveSessionChannelId();
     };
-  }, [connectionStatus, channelId, agentId, userEntity, socketIOManager]);
+  }, [
+    connectionStatus,
+    channelId,
+    sessionId,
+    agentId,
+    userEntity,
+    socketIOManager,
+  ]);
 
   // --- Send Message Logic ---
   const sendMessage = useCallback(
@@ -462,27 +460,42 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     console.log(`[Chat] Loading message history for channel: ${channelId}`);
 
-    // Load message history - try channel messages first, fallback to room memories
+    // Load from both channel messages and room memories, then merge and dedupe
+    // so we don't miss messages when one API is capped or incomplete
+    const MESSAGE_HISTORY_LIMIT = 500;
     const loadMessageHistory = async () => {
       try {
-        // First try the channel messages API (matches new message format)
-        const channelMessages = await getChannelMessages(channelId, 50);
-        if (channelMessages.length > 0) {
-          console.log(
-            `[Chat] Loaded ${channelMessages.length} channel messages`,
-          );
-          return channelMessages;
+        const [channelMessages, roomMessages] = await Promise.all([
+          getChannelMessages(channelId, MESSAGE_HISTORY_LIMIT),
+          getRoomMemories(agentId, channelId, MESSAGE_HISTORY_LIMIT),
+        ]);
+
+        console.log(
+          `[Chat] Loaded ${channelMessages.length} channel messages, ${roomMessages.length} room memories`,
+        );
+
+        // Merge and dedupe: prefer channel messages (same id or same createdAt+sender+text)
+        const byId = new Map<string, ChatMessage>();
+        const byKey = new Map<string, ChatMessage>();
+
+        const key = (m: ChatMessage) =>
+          `${m.createdAt}-${m.senderId}-${(m.text || "").slice(0, 80)}`;
+
+        for (const m of channelMessages) {
+          byId.set(m.id, m);
+          byKey.set(key(m), m);
+        }
+        for (const m of roomMessages) {
+          if (!byId.has(m.id) && !byKey.has(key(m))) {
+            byId.set(m.id, m);
+            byKey.set(key(m), m);
+          }
         }
 
-        // Fallback to room memories if channel messages are empty
-        console.log(
-          "[Chat] No channel messages found, trying room memories...",
+        const merged = Array.from(byId.values()).sort(
+          (a, b) => a.createdAt - b.createdAt,
         );
-        const roomMessages = await getRoomMemories(agentId, channelId, 50);
-        console.log(
-          `[Chat] Loaded ${roomMessages.length} room memory messages`,
-        );
-        return roomMessages;
+        return merged;
       } catch (error) {
         console.error("[Chat] Error loading message history:", error);
         return [];

@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { getOrGenerateUserEntity } from "@/lib/local-storage";
 
 interface Category {
   title: string;
@@ -60,16 +60,8 @@ export default function Page() {
 
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedEntity = localStorage.getItem("elizaHowUserEntity");
-      if (storedEntity) {
-        setUserEntity(storedEntity);
-      } else {
-        const newEntity = uuidv4();
-        localStorage.setItem("elizaHowUserEntity", newEntity);
-        setUserEntity(newEntity);
-      }
-    }
+    const entity = getOrGenerateUserEntity();
+    if (entity) setUserEntity(entity);
   }, []);
 
   const createNewSession = useCallback(

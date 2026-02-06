@@ -11,7 +11,7 @@ import {
 import { Dialog } from "@/components/dialog";
 import { DiscordIcon, XIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
-import CreateWallet from "./create-wallet";
+import { ConnectWallet } from "./connect-wallet";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -84,13 +84,13 @@ export function Header() {
         <div className="flex justify-between items-center py-4">
           <div className="flex">
             <Link href="/" className="-m-1.5 p-1.5">
-              <Logo width={32} height={32} />
+              <Logo />
             </Link>
           </div>
 
           <div className="flex gap-x-4 items-center ml-auto">
             {/* <NavLinks /> */}
-            <CreateWallet />
+            <ConnectWallet />
           </div>
         </div>
       </nav>

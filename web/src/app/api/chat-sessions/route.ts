@@ -49,24 +49,17 @@ export async function GET(request: NextRequest) {
     console.log(`[API] Found ${channels.length} total channels`);
 
     // Filter for DM channels involving the user and agent (following ElizaOS client pattern)
-    // Only include channels that have sessionId (new UUID-based sessions)
+    // NOTE: don't require metadata.sessionId; older channels won't have it.
     const dmChannels = channels.filter((channel: any) => {
       const metadata = channel.metadata || {};
       const isCorrectType = channel.type === "DM";
       const isMarkedAsDm = metadata.isDm === true;
       const isForThisAgent = metadata.forAgent === AGENT_ID;
-      const hasSessionId = metadata.sessionId; // Only new UUID-based sessions
       const isParticipant =
         (metadata.user1 === userId && metadata.user2 === AGENT_ID) ||
         (metadata.user1 === AGENT_ID && metadata.user2 === userId);
 
-      return (
-        isCorrectType &&
-        isMarkedAsDm &&
-        isForThisAgent &&
-        hasSessionId &&
-        isParticipant
-      );
+      return isCorrectType && isMarkedAsDm && isForThisAgent && isParticipant;
     });
 
     console.log(
@@ -81,7 +74,7 @@ export async function GET(request: NextRequest) {
         dmChannels.map(async (channel: any) => {
           try {
             const messagesResponse = await fetch(
-              `${API_BASE_URL}/api/messaging/channels/${channel.id}/messages?limit=50`,
+              `${API_BASE_URL}/api/messaging/channels/${channel.id}/messages?limit=500`,
               {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
@@ -150,10 +143,6 @@ export async function GET(request: NextRequest) {
           }
         }),
       );
-    } else {
-      // No UUID-based sessions found
-      console.log(`[API] No UUID-based DM channels found for user ${userId}`);
-      chatSessions = [];
     }
 
     // Sort by last activity (most recent first)

@@ -5,10 +5,10 @@ import clsx from "clsx";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 import { Button } from "@/components/button";
 import { ExamplePrompts } from "@/components/example-prompts";
+import { getOrGenerateUserEntity } from "@/lib/local-storage";
 
 export const LandingTextarea = () => {
   const [input, setInput] = useState("");
@@ -19,16 +19,8 @@ export const LandingTextarea = () => {
 
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedEntity = localStorage.getItem("norbitEntity");
-      if (storedEntity) {
-        setUserEntity(storedEntity);
-      } else {
-        const newEntity = uuidv4();
-        localStorage.setItem("norbitEntity", newEntity);
-        setUserEntity(newEntity);
-      }
-    }
+    const entity = getOrGenerateUserEntity();
+    if (entity) setUserEntity(entity);
   }, []);
 
   const handleInputChange = useCallback(

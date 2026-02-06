@@ -68,7 +68,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     try {
       const messagesResponse = await fetch(
-        `${API_BASE_URL}/api/messaging/channels/${sessionChannel.id}/messages?limit=100`,
+        `${API_BASE_URL}/api/messaging/channels/${sessionChannel.id}/messages?limit=500`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
