@@ -3,7 +3,7 @@ dotenv.config();
 
 import type { Character } from "@elizaos/core";
 import { ragPlugin } from "@/plugin-rag";
-import { groqPlugin } from "@/plugin-groq";
+// import { groqPlugin } from "@/plugin-groq";
 import { openaiPlugin } from "@elizaos/plugin-openai";
 import { knowledgePlugin } from "@elizaos/plugin-knowledge";
 
