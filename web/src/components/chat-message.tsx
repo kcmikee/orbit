@@ -129,7 +129,7 @@ export const ChatMessage = memo(function ChatMessage({
     >
       <div
         className={clsx(
-          "prose prose-zinc dark:prose-invert !max-w-full",
+          "prose prose-zinc dark:prose-invert max-w-full!",
           "prose-headings:mt-0 prose-headings:mb-0 prose-headings:my-0 prose-p:mt-0",
         )}
       >
@@ -150,13 +150,13 @@ export const ChatMessage = memo(function ChatMessage({
           <div className="mt-2 text-sm">
             <button
               onClick={() => setIsSourcesExpanded(!isSourcesExpanded)}
-              className="group flex items-center gap-1 py-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer"
+              className="flex gap-1 items-center py-1 cursor-pointer group text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
             >
               <span className="font-medium">
                 {uniqueCitations.length} source
                 {uniqueCitations.length > 1 ? "s" : ""}
               </span>
-              <div className="flex items-center justify-center w-4 h-4">
+              <div className="flex justify-center items-center w-4 h-4">
                 {isSourcesExpanded ? (
                   <ChevronUpIcon className="w-3 h-3" />
                 ) : (
@@ -175,7 +175,7 @@ export const ChatMessage = memo(function ChatMessage({
                     rel="noopener noreferrer"
                     className="group inline-flex items-center gap-1.5 max-w-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
                   >
-                    <LinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <LinkIcon className="w-3.5 h-3.5 shrink-0" />
                     <div className="flex-1 truncate">
                       <MemoizedMarkdown
                         id={`citation-${message.id}-${index}`}
@@ -209,18 +209,18 @@ export const ChatMessage = memo(function ChatMessage({
                 key={index}
                 onClick={() => onFollowUpClick?.(prompt)}
                 className={clsx([
-                  "flex items-center justify-between",
+                  "flex justify-between items-center",
                   "py-2",
                   "bg-transparent",
                   "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200",
                   "transition-colors",
-                  "group cursor-pointer",
-                  "text-left text-sm",
+                  "cursor-pointer group",
+                  "text-sm text-left",
                   "w-full",
                 ])}
               >
                 <span>{prompt}</span>
-                <ArrowRightIcon className="w-3 h-3 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 flex-shrink-0" />
+                <ArrowRightIcon className="w-3 h-3 shrink-0 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200" />
               </button>
             ))}
           </div>

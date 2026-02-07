@@ -14,7 +14,13 @@ import { Logo } from "@/components/logo";
 import { ConnectWallet } from "./connect-wallet";
 import { StaticImageData } from "next/image";
 
-export function Header({ url }: { url: StaticImageData | null }) {
+export function Header({
+  url,
+  backButtonUrl,
+}: {
+  url?: StaticImageData | null;
+  backButtonUrl?: string;
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // const [mounted, setMounted] = useState(false);
 
@@ -84,7 +90,7 @@ export function Header({ url }: { url: StaticImageData | null }) {
       <nav className="px-4 w-full lg:px-6" aria-label="Global">
         <div className="flex justify-between items-center py-4">
           <div className="flex">
-            <Link href="/" className="-m-1.5 p-1.5">
+            <Link href={backButtonUrl || "/"} className="-m-1.5 p-1.5">
               <Logo url={url} />
             </Link>
           </div>

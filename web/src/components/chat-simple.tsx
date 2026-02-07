@@ -82,8 +82,6 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   const [agentStatus, setAgentStatus] = useState<
     "checking" | "ready" | "error"
   >("checking");
-  const [showSessionSwitcher, setShowSessionSwitcher] =
-    useState<boolean>(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
@@ -589,7 +587,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   const renderConnectionStatus = () => {
     if (serverStatus === "checking") {
       return (
-        <div className="flex gap-2 items-center mb-4 text-sm text-gray-500">
+        <div className="flex gap-2 items-center text-sm text-gray-500">
           <LoadingSpinner />
           Checking server connection...
         </div>
@@ -598,7 +596,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (serverStatus === "offline") {
       return (
-        <div className="p-6 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900/20 dark:border-red-800">
+        <div className="p-3 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900/20 dark:border-red-800 mt-2">
           <div>
             <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">
               Connection Failed
@@ -626,7 +624,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
             : "Connecting (agent setup failed)...";
 
       return (
-        <div className="flex gap-2 items-center mb-4 text-sm text-blue-600">
+        <div className="flex gap-2 items-center text-sm text-blue-600">
           <LoadingSpinner />
           {statusText}
         </div>
@@ -635,7 +633,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (connectionStatus === "error") {
       return (
-        <div className="p-4 mb-4 bg-red-50 rounded-lg border border-red-200">
+        <div className="p-3 mt-2 bg-red-50 rounded-lg border border-red-200">
           <div className="flex gap-2 items-center">
             <div className="w-2 h-2 bg-red-500 rounded-full"></div>
             <span className="font-medium text-red-700">Connection Error</span>
@@ -649,7 +647,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (connectionStatus === "connected") {
       return (
-        <div className="flex gap-2 items-center mb-4 text-sm text-green-600">
+        <div className="flex gap-2 items-center text-sm text-green-600">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           Connected to Agent
         </div>
@@ -677,112 +675,104 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   }
 
   return (
-    <div className="flex flex-col mx-auto mt-20 w-full max-w-4xl min-h-screen">
-      {/* Header Section - Top/Middle */}
-      <div className="flex flex-col flex-1 px-4 pb-32">
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold">
-                {sessionData?.title || "Chat with Orbit Agent"}
-              </h1>
-              {sessionData && (
-                <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  {sessionData.messageCount} messages • Last activity{" "}
-                  {formatTimeAgo(sessionData.lastActivity)}
-                </div>
-              )}
-            </div>
-            <div className="flex gap-2 items-center">
-              <Button onClick={() => createNewSession()} color="blue">
-                New Chat
-              </Button>
-              {sessionData && (
-                <Button
-                  onClick={() => setShowSessionSwitcher(!showSessionSwitcher)}
-                  plain
-                >
-                  {showSessionSwitcher ? "Hide Sessions" : "Switch Chat"}
-                </Button>
-              )}
-            </div>
+    <div className="flex flex-col overflow-hidden h-[calc(100vh-4rem)] mt-16 w-full min-h-0">
+      <div className="flex flex-1 min-h-0 overflow-hidden w-full">
+        {/* Left Sidebar */}
+        <aside className="w-64 shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 overflow-hidden">
+          <div className="p-3 shrink-0 border-b border-zinc-200 dark:border-zinc-800">
+            <Button
+              onClick={() => createNewSession()}
+              color="blue"
+              className="w-full justify-center"
+            >
+              New Chat
+            </Button>
           </div>
-        </div>
+          <div className="flex-1 min-h-0 overflow-y-auto p-3">
+            {userEntity && (
+              <ChatSessions
+                userId={userEntity}
+                currentSessionId={sessionId ?? undefined}
+                showSwitcher={false}
+                compact
+              />
+            )}
+          </div>
+        </aside>
 
-        {/* Connection Status */}
-        <div className="mb-8">{renderConnectionStatus()}</div>
+        {/* Right: Messages + Input */}
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-white dark:bg-black">
+          {/* Session header + Connection Status */}
+          <div className="shrink-0 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
+            <h1 className="text-lg font-bold truncate">
+              {sessionData?.title || "Chat with Orbit Agent"}
+            </h1>
+            {sessionData && (
+              <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+                {sessionData.messageCount} messages •{" "}
+                {formatTimeAgo(sessionData.lastActivity)}
+              </div>
+            )}
+            <div className="mt-2">{renderConnectionStatus()}</div>
+          </div>
 
-        {/* Session Switcher */}
-        {showSessionSwitcher && userEntity && (
-          <div className="p-4 mb-6 rounded-lg border bg-zinc-50 dark:bg-zinc-900 border-zinc-950/10 dark:border-white/10">
-            <ChatSessions
-              userId={userEntity}
-              currentSessionId={sessionId}
-              showSwitcher={true}
+          {/* Messages - scrollable */}
+          <div className="flex-1 min-h-0 overflow-y-auto px-4">
+            {connectionStatus === "connected" && isLoadingHistory ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="flex gap-2 items-center">
+                  <LoadingSpinner />
+                  <span className="text-gray-600">
+                    Loading conversation history...
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <>
+                <ChatMessages
+                  messages={messages}
+                  citationsMap={{}}
+                  followUpPromptsMap={{}}
+                  onFollowUpClick={(prompt) => {
+                    setInput(prompt);
+                  }}
+                />
+                {isAgentThinking && (
+                  <div className="flex gap-2 items-center py-4 text-gray-600">
+                    <LoadingSpinner />
+                    <span>Agent is thinking...</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Textbox - fixed at bottom, not scrollable */}
+          <div className="shrink-0 p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
+            <TextareaWithActions
+              input={input}
+              onInputChange={(e) => setInput(e.target.value)}
+              onSubmit={handleSubmit}
+              isLoading={
+                isAgentThinking ||
+                inputDisabled ||
+                connectionStatus !== "connected"
+              }
+              placeholder={
+                connectionStatus === "connected"
+                  ? "Type your message..."
+                  : "Connecting..."
+              }
             />
           </div>
-        )}
-
-        {/* Chat Messages */}
-        <div className="overflow-y-auto flex-1">
-          {/* Only show history loading if we're connected and actually loading history */}
-          {connectionStatus === "connected" && isLoadingHistory ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="flex gap-2 items-center">
-                <LoadingSpinner />
-                <span className="text-gray-600">
-                  Loading conversation history...
-                </span>
-              </div>
-            </div>
-          ) : (
-            <>
-              <ChatMessages
-                messages={messages}
-                citationsMap={{}}
-                followUpPromptsMap={{}}
-                onFollowUpClick={(prompt) => {
-                  // Handle follow-up prompts by setting as new input
-                  setInput(prompt);
-                }}
-              />
-              {isAgentThinking && (
-                <div className="flex gap-2 items-center py-4 text-gray-600">
-                  <LoadingSpinner />
-                  <span>Agent is thinking...</span>
-                </div>
-              )}
-            </>
-          )}
         </div>
-      </div>
 
-      {/* Input Area - Fixed at Bottom */}
-      <div className="fixed right-0 bottom-0 left-0 z-10 p-4 bg-white dark:bg-black">
-        <div className="mx-auto w-full max-w-4xl">
-          <TextareaWithActions
-            input={input}
-            onInputChange={(e) => setInput(e.target.value)}
-            onSubmit={handleSubmit}
-            isLoading={
-              isAgentThinking ||
-              inputDisabled ||
-              connectionStatus !== "connected"
-            }
-            placeholder={
-              connectionStatus === "connected"
-                ? "Type your message..."
-                : "Connecting..."
-            }
-          />
-        </div>
+        <ConnectWalletModal
+          open={walletModalOpen}
+          onClose={() => setWalletModalOpen(false)}
+          onConnect={handleWalletConnect}
+        />
       </div>
-
-      <ConnectWalletModal
-        open={walletModalOpen}
-        onClose={() => setWalletModalOpen(false)}
-        onConnect={handleWalletConnect}
-      />
 
       {/* Debug Info (Only when NEXT_PUBLIC_DEBUG is enabled) */}
       {process.env.NEXT_PUBLIC_DEBUG === "true" && (

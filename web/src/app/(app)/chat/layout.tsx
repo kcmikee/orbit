@@ -8,8 +8,8 @@ export default function Layout({
 }>) {
   return (
     <>
-      <Header url={logo} />
-      <div className="flex overflow-hidden relative flex-col min-h-dvh size-full shrink-0">
+      <Header url={logo} backButtonUrl="/chats" />
+      <div className="flex overflow-hidden relative flex-col flex-1 min-w-0 min-h-0 h-dvh">
         {children}
       </div>
     </>

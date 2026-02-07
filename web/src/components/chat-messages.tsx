@@ -107,6 +107,7 @@ export function ChatMessages({
         scrollToBottom();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages[messages.length - 1]?.text]);
 
   useEffect(() => {
