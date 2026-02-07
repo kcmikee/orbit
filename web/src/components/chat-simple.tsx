@@ -674,6 +674,34 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
     );
   }
 
+  // Restrict chat to connected wallet only
+  if (!isWalletConnected) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[calc(100vh-4rem)] mt-16 w-full min-h-0">
+        <div className="p-8 max-w-md text-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+          <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            Connect your wallet to chat
+          </h2>
+          <p className="mb-6 text-zinc-600 dark:text-zinc-400">
+            You need to connect a wallet to use the chat with the Orbit agent.
+          </p>
+          <Button
+            onClick={() => setWalletModalOpen(true)}
+            color="blue"
+            className="w-full justify-center"
+          >
+            Connect wallet
+          </Button>
+        </div>
+        <ConnectWalletModal
+          open={walletModalOpen}
+          onClose={() => setWalletModalOpen(false)}
+          onConnect={handleWalletConnect}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col overflow-hidden h-[calc(100vh-4rem)] mt-16 w-full min-h-0">
       <div className="flex flex-1 min-h-0 overflow-hidden w-full">
@@ -714,6 +742,17 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
               </div>
             )}
             <div className="mt-2">{renderConnectionStatus()}</div>
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              Need testnet tokens?{" "}
+              <a
+                href="https://faucet.circle.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Get testnet USDC/EURC from Circle Faucet
+              </a>
+            </p>
           </div>
 
           {/* Messages - scrollable */}
