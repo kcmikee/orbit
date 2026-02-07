@@ -17,7 +17,7 @@ const OrbitLandingPage = () => {
       ></div>
       <div className="fixed inset-0 z-0 bg-linear-to-b from-transparent via-[#050505] to-purple-900/10 pointer-events-none"></div>
 
-      <nav className="flex relative z-10 justify-between items-center px-8 py-6 mx-auto max-w-7xl border-b backdrop-blur-md border-white/5">
+      <nav className="flex relative justify-between items-center px-8 py-6 mx-auto max-w-7xl border-b backdrop-blur-md z-100 border-white/5">
         <div className="flex gap-2 items-center">
           <Logo />
         </div>

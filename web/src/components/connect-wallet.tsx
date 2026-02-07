@@ -308,7 +308,7 @@ export function ConnectWallet() {
   return (
     <>
       {isConnected ? (
-        <Headless.Menu as="div" className="relative">
+        <Headless.Menu as="div" className="relative" style={{ zIndex: 99999 }}>
           <Headless.MenuButton
             className={clsx(
               "inline-flex gap-2 items-center px-3 py-2 text-sm font-medium rounded-lg",
@@ -329,10 +329,11 @@ export function ConnectWallet() {
           <Headless.MenuItems
             transition
             className={clsx(
-              "absolute right-0 z-50 py-1 mt-2 w-64 bg-white rounded-xl ring-1 shadow-lg origin-top-right ring-zinc-950/5 focus:outline-none",
+              "absolute right-0 py-1 mt-2 w-64 bg-white rounded-xl ring-1 shadow-lg origin-top-right ring-zinc-950/5 focus:outline-none",
               "dark:bg-zinc-900 dark:ring-white/10",
               "transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0",
             )}
+            style={{ zIndex: 99999 }}
           >
             {/* Balance summary - only in dropdown */}
             {selectedWallet && (
