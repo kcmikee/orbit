@@ -132,11 +132,12 @@ export async function POST(request: Request) {
     }
 
     // Get private key for transactions
-    const privateKey = process.env.TREASURY_PRIVATE_KEY || process.env.PRIVATE_KEY;
+    const privateKey =
+      process.env.TREASURY_PRIVATE_KEY || process.env.PRIVATE_KEY;
     if (!privateKey && (action === "deposit" || action === "withdraw")) {
       return NextResponse.json(
         { error: "Treasury private key not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -153,6 +154,7 @@ export async function POST(request: Request) {
               address: ORBIT_VAULT_ADDRESS,
               abi: VAULT_ABI,
               functionName: "getVaultStats",
+              authorizationList: undefined,
             })) as [bigint, bigint, bigint, bigint, bigint];
 
           return NextResponse.json({
@@ -181,7 +183,7 @@ export async function POST(request: Request) {
         if (!address) {
           return NextResponse.json(
             { error: "Missing address" },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -192,12 +194,14 @@ export async function POST(request: Request) {
               abi: ERC20_ABI,
               functionName: "balanceOf",
               args: [address as Hex],
+              authorizationList: undefined,
             }),
             publicClient.readContract({
               address: ORBIT_VAULT_ADDRESS,
               abi: VAULT_ABI,
               functionName: "balanceOf",
               args: [address as Hex],
+              authorizationList: undefined,
             }),
           ]);
 
@@ -223,7 +227,7 @@ export async function POST(request: Request) {
         if (!amount) {
           return NextResponse.json(
             { error: "Missing amount" },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -243,6 +247,7 @@ export async function POST(request: Request) {
             abi: ERC20_ABI,
             functionName: "balanceOf",
             args: [account.address],
+            authorizationList: undefined,
           })) as bigint;
 
           if (balance < depositAmount) {
@@ -262,6 +267,7 @@ export async function POST(request: Request) {
             abi: ERC20_ABI,
             functionName: "allowance",
             args: [account.address, ORBIT_VAULT_ADDRESS],
+            authorizationList: undefined,
           })) as bigint;
 
           // Approve if needed
@@ -285,6 +291,7 @@ export async function POST(request: Request) {
             abi: VAULT_ABI,
             functionName: "previewDeposit",
             args: [depositAmount],
+            authorizationList: undefined,
           })) as bigint;
 
           // Execute deposit
@@ -327,7 +334,7 @@ export async function POST(request: Request) {
         if (!shares) {
           return NextResponse.json(
             { error: "Missing shares amount" },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -347,6 +354,7 @@ export async function POST(request: Request) {
             abi: VAULT_ABI,
             functionName: "balanceOf",
             args: [account.address],
+            authorizationList: undefined,
           })) as bigint;
 
           if (shareBalance < shareAmount) {
@@ -397,14 +405,14 @@ export async function POST(request: Request) {
       default:
         return NextResponse.json(
           { error: `Unknown action: ${action}` },
-          { status: 400 }
+          { status: 400 },
         );
     }
   } catch (error) {
     console.error("Error in /api/treasury:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -422,6 +430,7 @@ export async function GET() {
         address: ORBIT_VAULT_ADDRESS,
         abi: VAULT_ABI,
         functionName: "getVaultStats",
+        authorizationList: undefined,
       })) as [bigint, bigint, bigint, bigint, bigint];
 
     return NextResponse.json({

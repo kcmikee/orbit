@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     if (!address) {
       return NextResponse.json(
         { error: "Missing wallet address" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
       return NextResponse.json(
         { error: "Invalid wallet address format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     if (!privateKey) {
       return NextResponse.json(
         { error: "Faucet not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -98,6 +98,7 @@ export async function POST(request: Request) {
       abi: MOCK_USDC_ABI,
       functionName: "balanceOf",
       args: [address as Hex],
+      authorizationList: undefined,
     })) as bigint;
 
     // Mint USDC (6 decimals)
@@ -122,6 +123,7 @@ export async function POST(request: Request) {
       abi: MOCK_USDC_ABI,
       functionName: "balanceOf",
       args: [address as Hex],
+      authorizationList: undefined,
     })) as bigint;
 
     return NextResponse.json({
@@ -144,7 +146,7 @@ export async function POST(request: Request) {
         error: "Failed to mint tokens",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -20,10 +20,10 @@ import SocketIOManager, {
 } from "@/lib/socketio-manager";
 import type { ChatMessage } from "@/types/chat-message";
 import { getOrGenerateUserEntity } from "@/lib/local-storage";
-import {
-  executeDepositFromChat,
-  type TransactionIntent,
-} from "@/lib/wallet-transaction";
+// import {
+//   executeDepositFromChat,
+//   type TransactionIntent,
+// } from "@/lib/wallet-transaction";
 import {
   getChannelMessages,
   getRoomMemories,
@@ -603,23 +603,23 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
     }
   }, [pendingMessage, sendMessage]);
 
-  const handleConfirmTransaction = useCallback(
-    async (intent: TransactionIntent, messageId: string) => {
-      setTransactionError(null);
-      setConfirmingMessageId(messageId);
-      try {
-        if (intent.type === "deposit") {
-          await executeDepositFromChat(intent.amount);
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Transaction failed";
-        setTransactionError(msg);
-      } finally {
-        setConfirmingMessageId(null);
-      }
-    },
-    [],
-  );
+  // const handleConfirmTransaction = useCallback(
+  //   async (intent: TransactionIntent, messageId: string) => {
+  //     setTransactionError(null);
+  //     setConfirmingMessageId(messageId);
+  //     try {
+  //       if (intent.type === "deposit") {
+  //         await executeDepositFromChat(intent.amount);
+  //       }
+  //     } catch (err) {
+  //       const msg = err instanceof Error ? err.message : "Transaction failed";
+  //       setTransactionError(msg);
+  //     } finally {
+  //       setConfirmingMessageId(null);
+  //     }
+  //   },
+  //   [],
+  // );
 
   // --- Render Connection Status ---
   const renderConnectionStatus = () => {
@@ -816,8 +816,8 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
                   onFollowUpClick={(prompt) => {
                     setInput(prompt);
                   }}
-                  onConfirmTransaction={handleConfirmTransaction}
-                  confirmingMessageId={confirmingMessageId}
+                  // onConfirmTransaction={handleConfirmTransaction}
+                  // confirmingMessageId={confirmingMessageId}
                 />
                 {transactionError && (
                   <div className="px-4 py-2 mt-2 text-sm text-red-600 bg-red-50 rounded-lg dark:text-red-400 dark:bg-red-950/30">
