@@ -251,6 +251,52 @@ export async function POST(request: Request) {
         return NextResponse.json(data.data, { status: 200 });
       }
 
+      case "createContractExecutionChallenge": {
+        const {
+          userToken,
+          walletId,
+          contractAddress,
+          abiFunctionSignature,
+          abiParameters,
+          feeLevel,
+        } = params;
+        if (!userToken || !walletId || !contractAddress) {
+          return NextResponse.json(
+            { error: "Missing userToken, walletId, or contractAddress" },
+            { status: 400 },
+          );
+        }
+        const payload: Record<string, unknown> = {
+          idempotencyKey: crypto.randomUUID(),
+          walletId,
+          contractAddress,
+          blockchain: "ARC-TESTNET",
+          feeLevel: feeLevel ?? "MEDIUM",
+        };
+        if (abiFunctionSignature)
+          payload.abiFunctionSignature = abiFunctionSignature;
+        if (abiParameters) payload.abiParameters = abiParameters;
+
+        const response = await fetch(
+          `${CIRCLE_BASE_URL}/v1/w3s/user/transactions/contractExecution`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${CIRCLE_API_KEY}`,
+              "X-User-Token": userToken,
+            },
+            body: JSON.stringify(payload),
+          },
+        );
+
+        const data = await response.json();
+        if (!response.ok) {
+          return NextResponse.json(data, { status: response.status });
+        }
+        return NextResponse.json(data.data ?? data, { status: 200 });
+      }
+
       default:
         return NextResponse.json(
           { error: `Unknown action: ${action}` },

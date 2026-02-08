@@ -64,19 +64,19 @@ const OrbitLandingPage = () => {
               // onMouseLeave={() => setIsHovered(false)}
             >
               <span className="flex relative z-10 gap-2 items-center">
-                Initialize Terminal <Terminal size={18} />
+                OPEN APPLICATION <Terminal size={18} />
               </span>
               <div className="absolute inset-0 bg-cyan-400 transition-transform transform translate-y-full group-hover:translate-y-0"></div>
             </button>
           </a>
-          <div className="text-xs tracking-widest uppercase opacity-50">
+          {/* <div className="text-xs tracking-widest uppercase opacity-50">
             98% Approval Rate • Non-Custodial Logic
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-1 gap-6 mt-24 md:grid-cols-3">
           {[
-            { label: "Circle Custody", value: "Regulated", icon: ShieldCheck },
+            { label: "Circle Wallets", value: "Regulated", icon: ShieldCheck },
             { label: "Stork Oracles", value: "Real-Time", icon: Zap },
             { label: "Uniswap v4", value: "Yield Hooks", icon: BarChart3 },
           ].map((item, i) => (
@@ -180,7 +180,7 @@ const OrbitLandingPage = () => {
           </h2>
           <a href="/chats">
             <button className="px-12 py-5 bg-linear-to-r from-cyan-500 to-purple-600 text-white font-black uppercase tracking-[0.2em] rounded-sm hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] transition-all">
-              Open Orbit Terminal
+              Open Orbit Agent
             </button>
           </a>
           <p className="mt-6 text-xs tracking-widest uppercase text-slate-500">

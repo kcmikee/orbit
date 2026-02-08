@@ -17,9 +17,11 @@ import { StaticImageData } from "next/image";
 export function Header({
   url,
   backButtonUrl,
+  isTreasury = false,
 }: {
   url?: StaticImageData | null;
   backButtonUrl?: string;
+  isTreasury?: boolean;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // const [mounted, setMounted] = useState(false);
@@ -96,6 +98,14 @@ export function Header({
           </div>
 
           <div className="flex gap-x-4 items-center ml-auto">
+            <Link
+              href={!isTreasury ? "/treasury" : "/chats"}
+              className={clsx(
+                "text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white",
+              )}
+            >
+              {!isTreasury ? "Treasury" : "Chats"}
+            </Link>
             {/* <NavLinks /> */}
             <ConnectWallet />
           </div>

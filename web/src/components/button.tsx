@@ -156,7 +156,6 @@ export const styles = {
   },
 };
 
-
 type ButtonProps = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
@@ -211,7 +210,7 @@ export function TouchTarget({ children }: { children: React.ReactNode }) {
   return (
     <>
       <span
-        className="absolute left-1/2 top-1/2 size-[max(100%,2.75rem)] -tranzinc-x-1/2 -tranzinc-y-1/2 [@media(pointer:fine)]:hidden"
+        className="absolute left-1/2 top-1/2 size-[max(100%,2.75rem)] -tranzinc-x-1/2 -tranzinc-y-1/2 pointer-fine:hidden"
         aria-hidden="true"
       />
       {children}
