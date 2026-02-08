@@ -25,8 +25,8 @@ const arcTestnet = {
     testnet: true,
 };
 
-// TreasuryOracle contract address (to be updated after deployment)
-const TREASURY_ORACLE_ADDRESS = (process.env.TREASURY_ORACLE_ADDRESS || '0x0000000000000000000000000000000000000000') as Hex;
+// TreasuryOracle contract address on Arc Testnet
+const TREASURY_ORACLE_ADDRESS = (process.env.TREASURY_ORACLE_ADDRESS || '0x9e2851a6E9fFA4433a38B74f6bD08e519A782940') as Hex;
 
 // Feed IDs (keccak256 of asset symbols)
 const FEED_IDS = {

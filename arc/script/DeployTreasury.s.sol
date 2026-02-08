@@ -8,6 +8,8 @@ import {MockUSDC} from "../src/tokens/MockUSDC.sol";
 import {MockUSYC} from "../src/tokens/MockUSYC.sol";
 import {MockWETH} from "../src/tokens/MockWETH.sol";
 import {TreasuryOracle} from "../src/TreasuryOracle.sol";
+import {OrbitVault} from "../src/OrbitVault.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title DeployTreasury
 /// @notice Deploys the treasury token system and oracle for Orbit
@@ -18,6 +20,7 @@ contract DeployTreasury is Script {
     MockUSYC public usyc;
     MockWETH public weth;
     TreasuryOracle public oracle;
+    OrbitVault public vault;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -46,7 +49,18 @@ contract DeployTreasury is Script {
         oracle = new TreasuryOracle();
         console.log("TreasuryOracle deployed at:", address(oracle));
 
-        // 3. Mint initial tokens to deployer for testing
+        // 3. Deploy OrbitVault (ERC4626)
+        console.log("\n=== Deploying Vault ===");
+
+        vault = new OrbitVault(IERC20(address(usdc)), "Orbit Treasury Shares", "oUSDC");
+        console.log("OrbitVault deployed at:", address(vault));
+        console.log("Vault accepts:", address(usdc), "(USDC)");
+
+        // Set deployer as agent for vault management
+        vault.setAgent(deployer);
+        console.log("Agent set to deployer:", deployer);
+
+        // 5. Mint initial tokens to deployer for testing
         console.log("\n=== Minting Initial Tokens ===");
 
         usdc.mint(deployer, 1_000_000 * 10**6);  // 1M USDC
@@ -58,7 +72,7 @@ contract DeployTreasury is Script {
         weth.mint(deployer, 100 * 10**18);       // 100 WETH
         console.log("Minted 100 WETH to deployer");
 
-        // 4. Verify oracle prices
+        // 6. Verify oracle prices
         console.log("\n=== Oracle Initial Prices ===");
 
         (int192 usdcPrice,,,) = oracle.getPriceData(oracle.USDC_FEED());
@@ -81,12 +95,14 @@ contract DeployTreasury is Script {
         console.log("MockUSYC:       ", address(usyc));
         console.log("MockWETH:       ", address(weth));
         console.log("TreasuryOracle: ", address(oracle));
+        console.log("OrbitVault:     ", address(vault));
         console.log("========================================");
         console.log("\nAdd these to your .env file:");
         console.log("MOCK_USDC_ADDRESS=", address(usdc));
         console.log("MOCK_USYC_ADDRESS=", address(usyc));
         console.log("MOCK_WETH_ADDRESS=", address(weth));
         console.log("TREASURY_ORACLE_ADDRESS=", address(oracle));
+        console.log("ORBIT_VAULT_ADDRESS=", address(vault));
     }
 }
 
