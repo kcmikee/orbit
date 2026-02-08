@@ -41,7 +41,7 @@
 
 ---
 
-## Current Readiness: ~65% (improved from 35%)
+## Current Readiness: ~75% (improved from 35%)
 
 | Requirement | Status | Score |
 |-------------|--------|-------|
@@ -175,19 +175,21 @@ Token1 (WETH):    0xFC92d1864F6Fa41059c793935A295d29b63d9E46
 - [ ] Transaction history
 - [ ] Yield earnings tracker
 
-### PHASE 4: Agent Intelligence Gaps - Partial ⚠️
+### PHASE 4: Agent Intelligence ✅ COMPLETE
 
 **Completed:**
 - [x] RWA asset knowledge in character.ts
 - [x] Decision logic explanations
 - [x] Target allocation knowledge (60% RWAs, 25% USDC, 15% WETH)
 
-**Missing Actions:**
-- [ ] GET_PORTFOLIO_BREAKDOWN - Agent explains current holdings
-- [ ] GET_INVESTMENT_THESIS - Agent explains WHY it made decisions
+**New Actions (treasury.ts):**
+- [x] GET_TREASURY_STATUS - Reports vault TVL, shares, APY, yield earned
+- [x] EXPLAIN_STRATEGY - Explains investment thesis and decision triggers
+- [x] GET_PORTFOLIO_BREAKDOWN - Shows current holdings with live prices
+- [x] CALCULATE_DEPOSIT - Previews shares for deposit amount
+
+**Remaining (Nice to Have):**
 - [ ] GET_HISTORICAL_PERFORMANCE - Track and report past trades
-- [ ] ACCEPT_DEPOSIT - Acknowledge user deposits
-- [ ] CALCULATE_SHARES - Compute shares for deposit amount
 - [ ] PROCESS_REDEMPTION - Handle withdrawal requests
 
 ### PHASE 5: Demo Requirements - Partial ⚠️
@@ -279,18 +281,22 @@ Token1 (WETH):    0xFC92d1864F6Fa41059c793935A295d29b63d9E46
      - Execute redemption
 ```
 
-### Phase D: Agent Enhancement (Pending)
+### Phase D: Agent Enhancement ✅ COMPLETE
 
 ```
-[ ] 1. Add GET_TREASURY_STATUS action
+[x] 1. Add GET_TREASURY_STATUS action ✅
      "I'm managing $X in the vault..."
 
-[ ] 2. Add EXPLAIN_STRATEGY action
+[x] 2. Add EXPLAIN_STRATEGY action ✅
      "I bought RWAs because ETH dropped 5%..."
 
-[ ] 3. Add vault interaction actions
-     - Read vault stats
-     - Report to users
+[x] 3. Add GET_PORTFOLIO_BREAKDOWN action ✅
+     - Shows current holdings
+     - Live prices from oracle
+
+[x] 4. Add CALCULATE_DEPOSIT action ✅
+     - Preview shares for deposit
+     - Projected APY returns
 ```
 
 ### Phase E: Demo & Documentation (Pending)
@@ -400,8 +406,9 @@ cd arc && source .env && forge script script/DeployTreasury.s.sol:DeployTreasury
 ```
 agent/src/character.ts              # Norbit personality + RWA knowledge
 agent/src/actions/rebalance.ts      # Decision logic
+agent/src/actions/treasury.ts       # Treasury status/strategy actions ✅ NEW
 agent/src/providers/stork.ts        # Oracle provider
-agent/src/providers/treasuryOracle.ts # TreasuryOracle provider ✅ NEW
+agent/src/providers/treasuryOracle.ts # TreasuryOracle provider
 
 arc/src/OrbitHook.sol               # Uniswap v4 hook (updated)
 arc/src/OrbitVault.sol              # ERC4626 vault ✅ NEW
@@ -433,6 +440,7 @@ web/src/app/api/endpoints/route.ts  # Circle wallet API
 | Feb 8 | **Mock tokens deployed** | ✅ |
 | Feb 8 | **Agent updated with RWA knowledge** | ✅ |
 | Feb 8 | **TreasuryOracle provider added** | ✅ |
+| Feb 8 | **Agent treasury actions added** | ✅ |
 | Feb ? | Treasury UI | ⏳ |
 | Feb ? | Demo video | ⏳ |
 | Feb ? | Submission | ⏳ |
@@ -458,3 +466,4 @@ web/src/app/api/endpoints/route.ts  # Circle wallet API
 - Agent with comprehensive RWA knowledge
 - All contracts deployed to Arc testnet
 - Build system working
+- Agent treasury actions (status, strategy, portfolio, deposit calc)
