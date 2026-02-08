@@ -21,6 +21,10 @@ import SocketIOManager, {
 import type { ChatMessage } from "@/types/chat-message";
 import { getOrGenerateUserEntity } from "@/lib/local-storage";
 import {
+  executeDepositFromChat,
+  type TransactionIntent,
+} from "@/lib/wallet-transaction";
+import {
   getChannelMessages,
   getRoomMemories,
   pingServer,
@@ -84,11 +88,16 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
   >("checking");
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [confirmingMessageId, setConfirmingMessageId] = useState<string | null>(
+    null,
+  );
+  const [transactionError, setTransactionError] = useState<string | null>(null);
 
   const isWalletConnected = useWalletConnection();
 
   // --- Refs ---
   const initStartedRef = useRef(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const socketIOManager = SocketIOManager.getInstance();
 
   // Format time ago utility
@@ -106,6 +115,17 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
   };
+
+  // Auto-scroll messages to bottom when new message or thinking state changes
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    // Use requestAnimationFrame so DOM has updated (new message/thinking UI)
+    const id = requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [messages, isAgentThinking]);
 
   // Initialize user entity on client side only to avoid hydration mismatch
   useEffect(() => {
@@ -583,6 +603,24 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
     }
   }, [pendingMessage, sendMessage]);
 
+  const handleConfirmTransaction = useCallback(
+    async (intent: TransactionIntent, messageId: string) => {
+      setTransactionError(null);
+      setConfirmingMessageId(messageId);
+      try {
+        if (intent.type === "deposit") {
+          await executeDepositFromChat(intent.amount);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Transaction failed";
+        setTransactionError(msg);
+      } finally {
+        setConfirmingMessageId(null);
+      }
+    },
+    [],
+  );
+
   // --- Render Connection Status ---
   const renderConnectionStatus = () => {
     if (serverStatus === "checking") {
@@ -596,7 +634,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
     if (serverStatus === "offline") {
       return (
-        <div className="p-3 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900/20 dark:border-red-800 mt-2">
+        <div className="p-3 mt-2 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900/20 dark:border-red-800">
           <div>
             <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">
               Connection Failed
@@ -688,7 +726,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
           <Button
             onClick={() => setWalletModalOpen(true)}
             color="blue"
-            className="w-full justify-center"
+            className="justify-center w-full"
           >
             Connect wallet
           </Button>
@@ -704,19 +742,19 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
 
   return (
     <div className="flex flex-col overflow-hidden h-[calc(100vh-4rem)] mt-16 w-full min-h-0">
-      <div className="flex flex-1 min-h-0 overflow-hidden w-full">
+      <div className="flex overflow-hidden flex-1 w-full min-h-0">
         {/* Left Sidebar */}
-        <aside className="w-64 shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 overflow-hidden">
-          <div className="p-3 shrink-0 border-b border-zinc-200 dark:border-zinc-800">
+        <aside className="flex overflow-hidden flex-col w-64 border-r shrink-0 border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+          <div className="p-3 border-b shrink-0 border-zinc-200 dark:border-zinc-800">
             <Button
               onClick={() => createNewSession()}
               color="blue"
-              className="w-full justify-center"
+              className="justify-center w-full"
             >
               New Chat
             </Button>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto p-3">
+          <div className="overflow-y-auto flex-1 p-3 min-h-0">
             {userEntity && (
               <ChatSessions
                 userId={userEntity}
@@ -729,9 +767,9 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
         </aside>
 
         {/* Right: Messages + Input */}
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-white dark:bg-black">
+        <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0 bg-white dark:bg-black">
           {/* Session header + Connection Status */}
-          <div className="shrink-0 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="px-4 py-3 border-b shrink-0 border-zinc-200 dark:border-zinc-800">
             <h1 className="text-lg font-bold truncate">
               {sessionData?.title || "Chat with Orbit Agent"}
             </h1>
@@ -756,7 +794,10 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
           </div>
 
           {/* Messages - scrollable */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-4">
+          <div
+            ref={messagesContainerRef}
+            className="overflow-y-auto flex-1 px-4 min-h-0"
+          >
             {connectionStatus === "connected" && isLoadingHistory ? (
               <div className="flex justify-center items-center h-32">
                 <div className="flex gap-2 items-center">
@@ -775,7 +816,14 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
                   onFollowUpClick={(prompt) => {
                     setInput(prompt);
                   }}
+                  onConfirmTransaction={handleConfirmTransaction}
+                  confirmingMessageId={confirmingMessageId}
                 />
+                {transactionError && (
+                  <div className="px-4 py-2 mt-2 text-sm text-red-600 bg-red-50 rounded-lg dark:text-red-400 dark:bg-red-950/30">
+                    {transactionError}
+                  </div>
+                )}
                 {isAgentThinking && (
                   <div className="flex gap-2 items-center py-4 text-gray-600">
                     <LoadingSpinner />
@@ -787,7 +835,7 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
           </div>
 
           {/* Textbox - fixed at bottom, not scrollable */}
-          <div className="shrink-0 p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
+          <div className="p-4 bg-white border-t shrink-0 border-zinc-200 dark:border-zinc-800 dark:bg-black">
             <TextareaWithActions
               input={input}
               onInputChange={(e) => setInput(e.target.value)}

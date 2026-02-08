@@ -168,7 +168,7 @@ const OrbitLandingPage = () => {
         className="relative z-10 px-6 py-24 mx-auto max-w-3xl border-t border-white/5"
       >
         <h2 className="mb-12 text-3xl italic font-bold tracking-tight text-center text-white">
-          Technical Intelligence <span className="text-cyan-400">_</span>
+          FAQs <span className="text-cyan-400">_</span>
         </h2>
         <Faq />
       </section>
