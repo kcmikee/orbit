@@ -27,7 +27,8 @@ import {
   getTreasuryStatusAction,
   explainStrategyAction,
   getPortfolioBreakdownAction,
-  calculateDepositAction
+  calculateDepositAction,
+  executeDepositAction
 } from './actions/treasury';
 
 /**
@@ -290,7 +291,7 @@ const plugin: Plugin = {
     ],
   },
   services: [StarterService],
-  actions: [helloWorldAction, executeSwapAction, autonomousRebalanceAction, getTreasuryStatusAction, explainStrategyAction, getPortfolioBreakdownAction, calculateDepositAction],
+  actions: [helloWorldAction, executeSwapAction, autonomousRebalanceAction, getTreasuryStatusAction, explainStrategyAction, getPortfolioBreakdownAction, calculateDepositAction, executeDepositAction],
   providers: [helloWorldProvider, coinGeckoPriceProvider, storkPriceProvider, treasuryMonitorProvider, treasuryOracleProvider],
 };
 
