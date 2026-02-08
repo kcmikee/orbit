@@ -62,7 +62,7 @@ const STRATEGY_CONFIG = {
 
 export const autonomousRebalanceAction: Action = {
     name: 'AUTONOMOUS_REBALANCE',
-    similes: ['AUTO_TRADE', 'REBALANCE_PORTFOLIO', 'OPTIMIZE_TREASURY'],
+    similes: ['AUTO_TRADE', 'REBALANCE_PORTFOLIO', 'OPTIMIZE_TREASURY', 'RUN_DEMO', 'SIMULATE_REBALANCE'],
     description: 'Autonomously monitors market conditions and rebalances treasury based on price movements and exposure thresholds',
     
     validate: async (_runtime: IAgentRuntime, _message: Memory, _state: State): Promise<boolean> => {
@@ -88,18 +88,46 @@ export const autonomousRebalanceAction: Action = {
                 });
             }
 
-            // Step 1: Gather market intelligence
-            const [coinGeckoData, storkData, treasuryData] = await Promise.all([
-                coinGeckoPriceProvider.get(_runtime, message, _state),
-                storkPriceProvider.get(_runtime, message, _state),
-                treasuryMonitorProvider.get(_runtime, message, _state)
-            ]);
+            // DEMO MODE CHECK
+            const isDemo = message.content.text?.toLowerCase().includes('demo') || 
+                          message.content.text?.toLowerCase().includes('simulate');
 
-            const realPrice = coinGeckoData.values?.price as number;
-            const oraclePrice = storkData.values?.price as number;
-            const change24h = coinGeckoData.values?.change24h as number;
-            const token0Exposure = treasuryData.values?.token0Exposure as number;
-            const token1Exposure = treasuryData.values?.token1Exposure as number;
+            let realPrice, oraclePrice, change24h, token0Exposure, token1Exposure;
+
+            if (isDemo) {
+                logger.info('🎬 DEMO MODE ACTIVATED: Simulating market dip...');
+                
+                // MOCK DATA FOR DEMO
+                realPrice = 2150.45;
+                oraclePrice = 2280.00; // Old price
+                change24h = -5.68;     // Force dip > 5%
+                token0Exposure = 45.2;
+                token1Exposure = 35.5;
+
+                if (callback) {
+                    callback({
+                        text: '🎬 **DEMO MODE ACTIVATED**\n\n' +
+                              'Simulating market conditions for demonstration...\n' +
+                              '📉 Injecting 5.68% ETH price drop...',
+                        action: 'DEMO_STARTED',
+                        source: message.content.source,
+                    });
+                }
+            } else {
+                // REAL DATA
+                // Step 1: Gather market intelligence
+                const [coinGeckoData, storkData, treasuryData] = await Promise.all([
+                    coinGeckoPriceProvider.get(_runtime, message, _state),
+                    storkPriceProvider.get(_runtime, message, _state),
+                    treasuryMonitorProvider.get(_runtime, message, _state)
+                ]);
+
+                realPrice = coinGeckoData.values?.price as number;
+                oraclePrice = storkData.values?.price as number;
+                change24h = coinGeckoData.values?.change24h as number;
+                token0Exposure = treasuryData.values?.token0Exposure as number;
+                token1Exposure = treasuryData.values?.token1Exposure as number;
+            }
 
             logger.info(`Market Analysis: Real=$${realPrice}, Oracle=$${oraclePrice}, 24h=${change24h}%, Exposure=${token0Exposure}/${token1Exposure}`);
 
