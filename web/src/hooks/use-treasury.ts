@@ -8,6 +8,10 @@ import type {
   UserPortfolio,
 } from "@/types/treasury";
 
+// Contract addresses
+export const MOCK_USDC_ADDRESS = "0x58b0104A9308f5Bff7Cc3fA78705eF81bcf1B26E";
+export const ORBIT_VAULT_ADDRESS = "0x9370dDf91b63cF5b2aa0c89BdC9D41209f24615F";
+
 const MOCK_ALLOCATIONS: AllocationItem[] = [
   {
     label: "USDC",
@@ -45,6 +49,144 @@ function getMockPortfolio(): UserPortfolio {
     usdValue: 1250,
     pendingYield: 12.45,
   };
+}
+
+// Faucet hook - mints USDC to user's wallet
+export function useFaucet() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const requestFaucet = useCallback(
+    async (
+      address: string,
+      amount: number = 10000
+    ): Promise<{ txHash: string; balanceAfter: string } | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/faucet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, amount }),
+        });
+        const data = await response.json();
+
+        if (!data.success) {
+          setError(data.error || "Faucet request failed");
+          return null;
+        }
+
+        return {
+          txHash: data.data.txHash,
+          balanceAfter: data.data.balanceAfter,
+        };
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Faucet request failed");
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { requestFaucet, loading, error };
+}
+
+// Deposit hook - creates Circle contract execution challenge
+export function useDeposit() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createDepositChallenge = useCallback(
+    async (
+      userToken: string,
+      walletId: string,
+      walletAddress: string,
+      amount: number
+    ): Promise<{ challengeId: string } | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Amount in smallest units (6 decimals for USDC)
+        const amountInUnits = BigInt(Math.floor(amount * 1e6)).toString();
+
+        // Create deposit challenge (approve + deposit in one)
+        const response = await fetch("/api/endpoints", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "createContractExecutionChallenge",
+            userToken,
+            walletId,
+            contractAddress: ORBIT_VAULT_ADDRESS,
+            abiFunctionSignature: "deposit(uint256,address)",
+            abiParameters: [amountInUnits, walletAddress],
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          setError(data.error || data.message || "Failed to create deposit challenge");
+          return null;
+        }
+
+        return { challengeId: data.challengeId };
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to create deposit");
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const createApproveChallenge = useCallback(
+    async (
+      userToken: string,
+      walletId: string,
+      amount: number
+    ): Promise<{ challengeId: string } | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const amountInUnits = BigInt(Math.floor(amount * 1e6)).toString();
+
+        const response = await fetch("/api/endpoints", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "createContractExecutionChallenge",
+            userToken,
+            walletId,
+            contractAddress: MOCK_USDC_ADDRESS,
+            abiFunctionSignature: "approve(address,uint256)",
+            abiParameters: [ORBIT_VAULT_ADDRESS, amountInUnits],
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          setError(data.error || data.message || "Failed to create approve challenge");
+          return null;
+        }
+
+        return { challengeId: data.challengeId };
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to create approval");
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return { createDepositChallenge, createApproveChallenge, loading, error };
 }
 
 export function useTreasuryStats() {

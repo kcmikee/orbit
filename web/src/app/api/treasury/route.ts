@@ -8,11 +8,12 @@ import {
   formatUnits,
   parseUnits,
   type Hex,
+  defineChain,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 // Arc Testnet Configuration
-const arcTestnet = {
+const arcTestnet = defineChain({
   id: 5042002,
   name: "Arc Testnet",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
@@ -24,7 +25,7 @@ const arcTestnet = {
     },
   },
   testnet: true,
-};
+});
 
 // Contract addresses
 const MOCK_USDC_ADDRESS = (process.env.MOCK_USDC_ADDRESS ||
@@ -267,6 +268,8 @@ export async function POST(request: Request) {
           if (allowance < depositAmount) {
             console.log("Approving USDC spend...");
             const approveHash = await walletClient.writeContract({
+              chain: arcTestnet,
+              account,
               address: MOCK_USDC_ADDRESS,
               abi: ERC20_ABI,
               functionName: "approve",
@@ -287,6 +290,8 @@ export async function POST(request: Request) {
           // Execute deposit
           console.log(`Depositing ${amount} USDC to vault...`);
           const depositHash = await walletClient.writeContract({
+            chain: arcTestnet,
+            account,
             address: ORBIT_VAULT_ADDRESS,
             abi: VAULT_ABI,
             functionName: "deposit",
@@ -358,6 +363,8 @@ export async function POST(request: Request) {
           // Execute redeem
           console.log(`Redeeming ${shares} shares from vault...`);
           const redeemHash = await walletClient.writeContract({
+            chain: arcTestnet,
+            account,
             address: ORBIT_VAULT_ADDRESS,
             abi: VAULT_ABI,
             functionName: "redeem",
