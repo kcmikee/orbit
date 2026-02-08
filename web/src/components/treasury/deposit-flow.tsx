@@ -115,13 +115,17 @@ function executeCircleChallenge(
 export function DepositFlow({
   onDepositSuccess,
   usdcBalance,
+  initialAmount, // Add initialAmount prop
+  onCancel // Add onCancel prop
 }: {
   onDepositSuccess?: () => void;
   usdcBalance?: string;
+  initialAmount?: string;
+  onCancel?: () => void;
 }) {
   const isConnected = useWalletConnection();
   const [step, setStep] = useState<DepositStep>("amount");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(initialAmount || ""); // Use initialAmount
   const [approving, setApproving] = useState(false);
   const [depositing, setDepositing] = useState(false);
   const [error, setError] = useState<string | null>(null);

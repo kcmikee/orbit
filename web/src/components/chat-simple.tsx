@@ -20,6 +20,7 @@ import SocketIOManager, {
 } from "@/lib/socketio-manager";
 import type { ChatMessage } from "@/types/chat-message";
 import { getOrGenerateUserEntity } from "@/lib/local-storage";
+import { DepositFlow } from "@/components/treasury/deposit-flow"; // Import DepositFlow
 // import {
 //   executeDepositFromChat,
 //   type TransactionIntent,
@@ -87,6 +88,8 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
     "checking" | "ready" | "error"
   >("checking");
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [depositModalOpen, setDepositModalOpen] = useState(false); // Add deposit modal state
+  const [depositAmount, setDepositAmount] = useState<string>("1000"); // Add deposit amount state
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [confirmingMessageId, setConfirmingMessageId] = useState<string | null>(
     null,
@@ -362,6 +365,14 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
       // If this was an agent response, stop the thinking indicator
       if (isAgentMessage) {
         setIsAgentThinking(false);
+
+        // Check for actions in the message
+        if (data.action === "DEPOSIT" || data.action === "INITIATE_DEPOSIT") {
+            const amount = data.content?.amount || 1000;
+            console.log(`[Chat] Initiating deposit flow for ${amount}`);
+            setDepositAmount(amount.toString());
+            setDepositModalOpen(true);
+        }
       }
     };
 
@@ -740,8 +751,40 @@ export const Chat = ({ sessionId: propSessionId }: ChatProps = {}) => {
     );
   }
 
+  // Handle deposit success
+  const handleDepositSuccess = () => {
+      console.log("Deposit successful, refreshing or showing success message");
+      // Optionally add a system message or toast here
+      setTimeout(() => {
+          setDepositModalOpen(false);
+      }, 3000);
+  };
+
   return (
-    <div className="flex flex-col overflow-hidden h-[calc(100vh-4rem)] mt-16 w-full min-h-0">
+    <div className="flex flex-col overflow-hidden h-[calc(100vh-4rem)] mt-16 w-full min-h-0 relative"> {/* Add relative positioning */}
+       {/* Deposit Modal Overlay */}
+       {depositModalOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-xl overflow-hidden relative">
+                 <button
+                    onClick={() => setDepositModalOpen(false)}
+                    className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 z-10"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div className="p-1">
+                    <DepositFlow
+                        initialAmount={depositAmount}
+                        onDepositSuccess={handleDepositSuccess}
+                        onCancel={() => setDepositModalOpen(false)}
+                    />
+                </div>
+            </div>
+        </div>
+      )}
+
       <div className="flex overflow-hidden flex-1 w-full min-h-0">
         {/* Left Sidebar */}
         <aside className="flex overflow-hidden flex-col w-64 border-r shrink-0 border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">

@@ -537,10 +537,10 @@ export const calculateDepositAction: Action = {
 
             if (callback) {
                 callback({
-                    text: calcText,
-                    action: 'CALCULATE_DEPOSIT',
-                    source: message.content.source,
-                });
+                    text: `Initiating deposit of ${depositAmount} USDC...`,
+            action: 'DEPOSIT',
+            source: message.content.source
+        });
             }
 
             return {
@@ -647,12 +647,21 @@ const VAULT_DEPOSIT_ABI = [
  * Actually executes a deposit to the OrbitVault
  */
 export const executeDepositAction: Action = {
-    name: 'EXECUTE_DEPOSIT',
-    similes: ['DEPOSIT', 'DEPOSIT_USDC', 'INVEST', 'ADD_FUNDS'],
-    description: 'Execute a USDC deposit to the OrbitVault and receive shares',
+    name: 'DEPOSIT',
+    similes: [
+        'DEPOSIT_USDC',
+        'INVEST',
+        'ADD_FUNDS',
+        'STAKE',
+        'ENTER_VAULT',
+        'BUY_SHARES',
+        'MINT_SHARES'
+    ],
+    description: 'MUST be used when the user wants to deposit USDC, invest funds, or adds money to the vault. Triggers the deposit UI.',
 
     validate: async (_runtime: IAgentRuntime, _message: Memory, _state: State): Promise<boolean> => {
-        return !!(process.env.EVM_PRIVATE_KEY || process.env.PRIVATE_KEY);
+        logger.info('Validating DEPOSIT action...');
+        return true;
     },
 
     handler: async (
@@ -698,140 +707,36 @@ export const executeDepositAction: Action = {
                 };
             }
 
-            logger.info(`Executing deposit of ${depositAmount} USDC...`);
-
+            // Instead of executing server-side, we tell the frontend to initiate the flow
             if (callback) {
                 callback({
-                    text: `💰 **Initiating Deposit**\n\nDepositing ${depositAmount.toLocaleString()} USDC to OrbitVault...\n\n⏳ Please wait while I process this transaction...`,
-                    action: 'EXECUTE_DEPOSIT',
+                    text: `💰 Opening deposit flow for ${depositAmount.toLocaleString()} USDC...`,
+                    action: 'INITIATE_DEPOSIT',
                     source: message.content.source,
-                });
-            }
-
-            const privateKey = (process.env.EVM_PRIVATE_KEY || process.env.PRIVATE_KEY) as Hex;
-            const account = privateKeyToAccount(privateKey);
-
-            const publicClient = createPublicClient({
-                chain: arcTestnet,
-                transport: http()
-            });
-
-            const walletClient = createWalletClient({
-                account,
-                chain: arcTestnet,
-                transport: http()
-            });
-
-            const depositAmountWei = parseUnits(String(depositAmount), 6); // USDC has 6 decimals
-
-            // Check USDC balance
-            const balance = await publicClient.readContract({
-                address: MOCK_USDC_ADDRESS,
-                abi: ERC20_ABI,
-                functionName: 'balanceOf',
-                args: [account.address]
-            }) as bigint;
-
-            if (balance < depositAmountWei) {
-                const availableBalance = Number(formatUnits(balance, 6));
-                if (callback) {
-                    callback({
-                        text: `❌ **Insufficient Balance**\n\nYou have ${availableBalance.toLocaleString()} USDC but tried to deposit ${depositAmount.toLocaleString()} USDC.`,
-                        action: 'EXECUTE_DEPOSIT',
-                        source: message.content.source,
-                    });
-                }
-                return {
-                    success: false,
-                    text: 'Insufficient USDC balance',
-                    values: { available: availableBalance, required: depositAmount }
-                };
-            }
-
-            // Check and set allowance
-            const allowance = await publicClient.readContract({
-                address: MOCK_USDC_ADDRESS,
-                abi: ERC20_ABI,
-                functionName: 'allowance',
-                args: [account.address, ORBIT_VAULT_ADDRESS]
-            }) as bigint;
-
-            if (allowance < depositAmountWei) {
-                logger.info('Approving USDC spend...');
-                const approveHash = await walletClient.writeContract({
-                    address: MOCK_USDC_ADDRESS,
-                    abi: ERC20_ABI,
-                    functionName: 'approve',
-                    args: [ORBIT_VAULT_ADDRESS, depositAmountWei]
-                });
-                await publicClient.waitForTransactionReceipt({ hash: approveHash });
-                logger.info('Approved:', approveHash);
-            }
-
-            // Preview shares
-            const expectedShares = await publicClient.readContract({
-                address: ORBIT_VAULT_ADDRESS,
-                abi: VAULT_DEPOSIT_ABI,
-                functionName: 'previewDeposit',
-                args: [depositAmountWei]
-            }) as bigint;
-
-            // Execute deposit
-            logger.info('Executing deposit...');
-            const depositHash = await walletClient.writeContract({
-                address: ORBIT_VAULT_ADDRESS,
-                abi: VAULT_DEPOSIT_ABI,
-                functionName: 'deposit',
-                args: [depositAmountWei, account.address]
-            });
-
-            const receipt = await publicClient.waitForTransactionReceipt({ hash: depositHash });
-
-            const sharesReceived = Number(formatUnits(expectedShares, 18));
-
-            const successText = `✅ **Deposit Successful!**\n\n` +
-                `💰 **Deposited:** ${depositAmount.toLocaleString()} USDC\n` +
-                `📊 **Shares Received:** ${sharesReceived.toLocaleString('en-US', { minimumFractionDigits: 4 })} oUSDC\n` +
-                `📋 **Transaction:** \`${depositHash}\`\n` +
-                `🔗 **Block:** ${receipt.blockNumber}\n\n` +
-                `Your funds are now earning yield in the Orbit Treasury! 🎉`;
-
-            if (callback) {
-                callback({
-                    text: successText,
-                    action: 'EXECUTE_DEPOSIT',
-                    source: message.content.source,
+                    content: {
+                        amount: depositAmount
+                    }
                 });
             }
 
             return {
                 success: true,
-                text: successText,
-                values: {
-                    deposited: depositAmount,
-                    sharesReceived,
-                    txHash: depositHash,
-                    blockNumber: receipt.blockNumber.toString()
+                text: 'Initiated deposit flow',
+                data: {
+                    action: 'INITIATE_DEPOSIT',
+                    amount: depositAmount
                 }
             };
-
         } catch (error) {
-            logger.error('Deposit failed:', error);
-
-            if (callback) {
-                callback({
-                    text: `❌ **Deposit Failed**\n\n${error instanceof Error ? error.message : String(error)}`,
-                    action: 'EXECUTE_DEPOSIT',
-                    source: message.content.source,
-                });
-            }
-
+            logger.error('Failed to initiate deposit:', error);
             return {
                 success: false,
-                text: 'Deposit failed',
+                text: 'Failed to initiate deposit',
                 error: error instanceof Error ? error : new Error(String(error))
             };
         }
+    },
+
     },
 
     examples: [
@@ -846,6 +751,14 @@ export const executeDepositAction: Action = {
         [
             { name: '{{name1}}', content: { text: 'Add 10000 to the vault' } },
             { name: 'Norbit', content: { text: '💰 Depositing 10000 USDC to OrbitVault...', action: 'EXECUTE_DEPOSIT' } }
+        ],
+        [
+            { name: '{{name1}}', content: { text: 'Deposit funds' } },
+            { name: 'Norbit', content: { text: '💰 How much would you like to deposit?', action: 'EXECUTE_DEPOSIT' } }
+        ],
+        [
+             { name: '{{name1}}', content: { text: 'limit order' } },
+             { name: 'Norbit', content: { text: 'I can help with depositing funds to the vault', action: 'NONE' } }
         ]
     ]
 };

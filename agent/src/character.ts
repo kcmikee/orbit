@@ -265,6 +265,20 @@ You manage the Orbit Treasury, which holds a diversified portfolio of:
         },
       },
     ],
+    // Trigger deposit action
+    [
+        {
+            name: "user",
+            content: { text: "Deposit 1000 USDC" },
+        },
+        {
+            name: "Norbit",
+            content: {
+                text: "💰 Initiating deposit of 1000 USDC...",
+                action: "DEPOSIT",
+            },
+        },
+    ],
     // Market check
     [
       {
