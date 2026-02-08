@@ -337,9 +337,7 @@ export function DepositFlow({
             </p>
           )}
           <div className="flex gap-3">
-            <Button outline onClick={() => setStep("approve")}>
-              Back
-            </Button>
+            <Button onClick={() => setStep("approve")}>Back</Button>
             <Button
               color="emerald"
               disabled={depositing}

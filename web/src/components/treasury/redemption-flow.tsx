@@ -60,14 +60,14 @@ export function RedemptionFlow({
       <section
         className={clsx(
           "rounded-2xl border border-zinc-200 dark:border-zinc-800",
-          "bg-white dark:bg-zinc-900/80 p-6 sm:p-8",
+          "p-6 bg-white dark:bg-zinc-900/80 sm:p-8",
         )}
       >
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
+        <h2 className="flex gap-2 items-center mb-2 text-lg font-semibold text-zinc-900 dark:text-white">
           <ArrowUturnLeftIcon className="w-5 h-5 text-amber-500" />
           Redeem shares
         </h2>
-        <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Connect your wallet to redeem vault shares for USDC.
         </p>
       </section>
@@ -78,20 +78,20 @@ export function RedemptionFlow({
     <section
       className={clsx(
         "rounded-2xl border border-zinc-200 dark:border-zinc-800",
-        "bg-white dark:bg-zinc-900/80 p-6 sm:p-8",
+        "p-6 bg-white dark:bg-zinc-900/80 sm:p-8",
       )}
     >
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2 flex items-center gap-2">
+      <h2 className="flex gap-2 items-center mb-2 text-lg font-semibold text-zinc-900 dark:text-white">
         <ArrowUturnLeftIcon className="w-5 h-5 text-amber-500" />
         Redeem shares
       </h2>
-      <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-6">
+      <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
         Burn vault shares to receive USDC (and any accrued yield).
       </p>
 
       {step === "amount" && (
         <>
-          <div className="space-y-2 mb-4">
+          <div className="mb-4 space-y-2">
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Shares to redeem
             </label>
@@ -110,7 +110,7 @@ export function RedemptionFlow({
               Max: {maxShares.toLocaleString()} shares
             </p>
           </div>
-          <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 mb-4">
+          <div className="p-4 mb-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               You will receive approximately{" "}
               <strong className="text-zinc-900 dark:text-white">
@@ -135,19 +135,19 @@ export function RedemptionFlow({
 
       {step === "confirm" && (
         <>
-          <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 mb-4">
+          <div className="p-4 mb-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Redeem <strong>{sharesInput}</strong> shares for{" "}
               <strong>${usdcToReceive.toFixed(2)} USDC</strong>.
             </p>
           </div>
           {error && (
-            <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+            <p className="mb-4 text-sm text-red-600 dark:text-red-400">
               {error}
             </p>
           )}
           <div className="flex gap-3">
-            <Button color="zinc" outline onClick={() => setStep("amount")}>
+            <Button color="zinc" onClick={() => setStep("amount")}>
               Back
             </Button>
             <Button color="amber" disabled={redeeming} onClick={handleRedeem}>
@@ -159,7 +159,7 @@ export function RedemptionFlow({
 
       {step === "success" && (
         <>
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 mb-4">
+          <div className="flex gap-3 items-center p-4 mb-4 bg-amber-50 rounded-xl dark:bg-amber-950/30">
             <CheckCircleIcon className="w-8 h-8 text-amber-600 dark:text-amber-400 shrink-0" />
             <div>
               <p className="font-medium text-amber-800 dark:text-amber-200">
