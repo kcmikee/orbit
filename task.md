@@ -1,17 +1,45 @@
 # Orbit - RWA Treasury Manager
 
-## Target Bounty
-**"Best Agentic Commerce App Powered by Real-World Assets on Arc"** - $2,500
+## Target Bounties
 
-### Bounty Requirements
-- [x] AI agents that rebalance against RWA collateral
-- [ ] Autonomous treasury management
-- [ ] USDC-denominated cash flow backed by RWAs
-- [x] Clear agent decision logic tied to oracle signals
-- [ ] Functional MVP with frontend + backend
-- [ ] Architecture diagram
-- [ ] Video demonstration
-- [ ] Documentation
+### 1. Arc: Best Agentic Commerce App ($2,500)
+**"AI agents using RWAs as productive capital for onchain commerce"**
+
+| Requirement | Status |
+|-------------|--------|
+| AI agents that rebalance against RWA collateral | ✅ Implemented |
+| Autonomous treasury management | ⚠️ Trading works, no deposits |
+| USDC-denominated cash flow backed by RWAs | ❌ Missing vault |
+| Clear agent decision logic tied to oracle signals | ✅ Implemented |
+| Functional MVP (frontend + backend) | ⚠️ Chat works, no treasury UI |
+| Architecture diagram | ❌ Missing |
+| Video demonstration | ❌ Missing |
+| Uses: Arc, USDC, Circle Wallets, Stork | ✅ All integrated |
+
+### 2. Uniswap: v4 Agentic Finance ($5,000 pool)
+**"Agent-driven financial systems on Uniswap v4"**
+
+| Requirement | Status |
+|-------------|--------|
+| Uniswap v4 integration | ✅ OrbitHook deployed |
+| Custom Hook implementation | ✅ beforeSwap with oracle |
+| Agent interacts with v4 pools | ✅ EXECUTE_SWAP action |
+| Trade execution | ✅ Works on testnet |
+| Liquidity management | ❌ Not implemented |
+| Routing/coordination | ❌ Single pool only |
+| Reliability & transparency | ⚠️ No afterSwap logging |
+| TxID evidence | ✅ Deployed to Arc testnet |
+| Demo video (3 min) | ❌ Missing |
+
+**Current competitiveness: 3rd place territory**
+
+#### Quick Wins to Improve Hook
+- [ ] **Dynamic fees** - Adjust based on oracle volatility (HIGH IMPACT)
+- [ ] **afterSwap logging** - Emit events for transparency (EASY)
+- [ ] **Slippage protection** - Reject swaps deviating from oracle (MEDIUM)
+- [ ] **Price bounds** - Validate oracle price is realistic (EASY)
+
+---
 
 ---
 
